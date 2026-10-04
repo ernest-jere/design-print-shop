@@ -29,19 +29,36 @@ export default function QuoteForm() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus("submitting");
-    const sData = new FormData();
-    sData.append("access_key", import.meta.env.VITE_WEB3FORMS_KEY);
-    Object.keys(formData).forEach(k => sData.append(k, formData[k]));
+  e.preventDefault();
+  setStatus("submitting");
 
-    try {
-      const res = await fetch("https://web3forms.com", { method: "POST", body: sData });
-      const data = await res.json();
-      if (data.success) { setStatus("success"); setStep(5); } 
-      else { setStatus("error"); }
-    } catch { setStatus("error"); }
+  const submissionData = new FormData();
+  submissionData.append("access_key", import.meta.env.VITE_WEB3FORMS_KEY);
+    
+  Object.keys(formData).forEach(key => {
+    submissionData.append(key, formData[key]);
+  });
+
+  try {
+    const response = await fetch("https://web3forms.com", {
+      method: "POST",
+      body: submissionData
+    });
+    const data = await response.json();
+
+    if (data.success) {
+        setStatus("success");
+        setStep(5);
+      } else {
+        setStatus("error");
+        alert("Submission failed: " + data.message);
+      }
+    } catch (err) {
+      setStatus("error");
+      alert("A network error occurred. Please verify your internet connection.");
+    }
   };
+
 
   return (
     <div className="w-full max-w-lg mx-auto p-4 relative min-h-[520px]">
