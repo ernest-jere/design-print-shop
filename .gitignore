@@ -1,4 +1,31 @@
-# Logs
+# Production Build Outputs
+node_modules
+dist
+dist-ssr
+*.api
+
+# Secrets and Environment Variables (CRITICAL SECURITY)
+.env
+.env.local
+.env.[a-zA-Z0-9]*
+!.env.example
+
+# OS Metadata Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs & System Editors
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Node & Package Manager Diagnostic Logs
 logs
 *.log
 npm-debug.log*
@@ -6,19 +33,3 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
