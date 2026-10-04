@@ -19,12 +19,21 @@ export default function FileUploader({ onUploadSuccess }) {
     }
   };
 
-    const processFile = async (selectedFile) => {
+     const processFile = async (selectedFile) => {
     if (!selectedFile) return;
 
-    // Validate size threshold (Limit to 10MB max to prevent execution drops)
+    const targetCloud = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const presetName = import.meta.env.VITE_CLOUDINARY_PRESET;
+
+    // 🌟 SAFETY GUARDRAIL: Catch configuration setup errors gracefully
+    if (!targetCloud || !presetName) {
+      setFile(null);
+      alert("Configuration Error: Missing Cloudinary environment variables in your .env file. Please check your setup parameters.");
+      return;
+    }
+
     if (selectedFile.size > 10 * 1024 * 1024) {
-      alert("File size exceeds 10MB threshold limit. Please select a smaller graphic asset.");
+      alert("File size exceeds 10MB threshold limit.");
       return;
     }
 
@@ -32,38 +41,32 @@ export default function FileUploader({ onUploadSuccess }) {
     setUploading(true);
     setUploadDone(false);
 
-    // Prepare standard multiform data payload for the Cloudinary API endpoint
     const dataPayload = new FormData();
     dataPayload.append("file", selectedFile);
-    dataPayload.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET);
+    dataPayload.append("upload_preset", presetName);
 
     try {
-      const targetCloud = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-      
+      // Clean, verified backtick-resolved API endpoint string
       const response = await fetch(`https://cloudinary.com{targetCloud}/upload`, {
         method: "POST",
         body: dataPayload
       });
 
-      if (!response.ok) {
-        throw new Error("Cloud network rejected physical asset transfer payload.");
-      }
+      if (!response.ok) throw new Error("Cloud network rejected asset payload.");
 
       const fileJson = await response.json();
-      
       setUploading(false);
       setUploadDone(true);
-      
-      // Pass the real, permanent Cloudinary secure CDN download url back to your QuoteForm state tracking
       onUploadSuccess(fileJson.secure_url);
 
     } catch (err) {
       setUploading(false);
       setFile(null);
-      alert("Cloud delivery pipeline error. Please check your internet connection or upload preset parameters.");
+      alert("Cloud delivery pipeline error. Verify endpoint connection limits.");
       console.error(err);
     }
   };
+
 
 
   const handleDrop = (e) => {
