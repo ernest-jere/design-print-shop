@@ -3,21 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, Printer, Paintbrush, Layers, ShieldCheck, Laptop } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import FileUploader from './FileUploader';
+
 
 export default function QuoteForm() {
   const [step, setStep] = useState(1);
   const [status, setStatus] = useState("");
   const [direction, setDirection] = useState(1);
   const [formData, setFormData] = useState({
-    serviceType: '',
-    productCategory: '',
-    quantity: '',
-    paperFinish: 'standard',
-    description: '',
-    clientName: '',
-    clientEmail: '',
-    clientPhone: ''
-  });
+  serviceType: '',
+  productCategory: '',
+  quantity: '',
+  paperFinish: 'standard',
+  description: '',
+  assetDownloadUrl: '', // 🌟 ADD THIS PARAMETER LINE RIGHT HERE
+  clientName: '',
+  clientEmail: '',
+  clientPhone: ''
+});
+
 
   const nextStep = () => { setDirection(1); setStep((prev) => prev + 1); };
   const prevStep = () => { setDirection(-1); setStep((prev) => prev - 1); };
@@ -162,6 +166,14 @@ export default function QuoteForm() {
                   </label>
                   <textarea rows={4} placeholder={formData.serviceType === 'web' ? "Describe integrations, UI requirements, or custom functionality..." : "Describe file dimensions, color counts, layout targets, or current output bugs..."} className="w-full mt-1 p-2.5 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-blue-500 resize-none" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
                 </div>
+                
+                {/* RENDER THE UPLOADER IMMEDIATELY BENEATH YOUR DESCRIPTION TEXTAREA */}
+                <div className="pt-2">
+                  <FileUploader 
+                    onUploadSuccess={(url) => setFormData(prev => ({ ...prev, assetDownloadUrl: url }))} 
+                  />
+                </div>
+
               </CardContent>
               <CardFooter className="flex justify-between border-t border-slate-100 pt-4 bg-slate-50/50 rounded-b-xl">
                 <Button variant="ghost" className="text-slate-600 hover:text-slate-900" onClick={prevStep}><ChevronLeft className="mr-1 h-4 w-4" /> Back</Button>
