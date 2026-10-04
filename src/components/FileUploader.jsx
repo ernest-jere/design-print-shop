@@ -19,10 +19,10 @@ export default function FileUploader({ onUploadSuccess }) {
     }
   };
 
-  const processFile = async (selectedFile) => {
+    const processFile = async (selectedFile) => {
     if (!selectedFile) return;
 
-    // Validate size constraint (Limit to 10MB to protect pipeline thresholds)
+    // Validate size threshold (Limit to 10MB max to prevent execution drops)
     if (selectedFile.size > 10 * 1024 * 1024) {
       alert("File size exceeds 10MB threshold limit. Please select a smaller graphic asset.");
       return;
@@ -30,19 +30,41 @@ export default function FileUploader({ onUploadSuccess }) {
 
     setFile(selectedFile);
     setUploading(true);
+    setUploadDone(false);
 
-    // --- CLOUD UPLOAD SIMULATION ENGINE ---
-    // In a live system, you would use an active fetch request to Cloudinary/Uploadthing here.
-    // For now, we simulate an optimized structural network upload latency of 1.5 seconds.
-    setTimeout(() => {
+    // Prepare standard multiform data payload for the Cloudinary API endpoint
+    const dataPayload = new FormData();
+    dataPayload.append("file", selectedFile);
+    dataPayload.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET);
+
+    try {
+      const targetCloud = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      
+      const response = await fetch(`https://cloudinary.com{targetCloud}/upload`, {
+        method: "POST",
+        body: dataPayload
+      });
+
+      if (!response.ok) {
+        throw new Error("Cloud network rejected physical asset transfer payload.");
+      }
+
+      const fileJson = await response.json();
+      
       setUploading(false);
       setUploadDone(true);
       
-      // Inject a secure mock download asset url back to Web3Forms parameter logs
-      const mockDownloadUrl = `https://storage.local{Date.now()}_${selectedFile.name}`;
-      onUploadSuccess(mockDownloadUrl);
-    }, 1500);
+      // Pass the real, permanent Cloudinary secure CDN download url back to your QuoteForm state tracking
+      onUploadSuccess(fileJson.secure_url);
+
+    } catch (err) {
+      setUploading(false);
+      setFile(null);
+      alert("Cloud delivery pipeline error. Please check your internet connection or upload preset parameters.");
+      console.error(err);
+    }
   };
+
 
   const handleDrop = (e) => {
     e.preventDefault();
