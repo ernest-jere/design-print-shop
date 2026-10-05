@@ -45,29 +45,30 @@ export default function FileUploader({ onUploadSuccess }) {
     dataPayload.append("file", selectedFile);
     dataPayload.append("upload_preset", presetName);
 
-    try {
-      // Clean, verified backtick-resolved API endpoint string
-      const response = await fetch(`https://cloudinary.com{targetCloud}/upload`, {
-        method: "POST",
-        body: dataPayload
-      });
+  try {
+    const response = await fetch(`https://cloudinary.com{targetCloud}/upload`, {
+      method: "POST",
+      body: dataPayload
+    });
 
-      if (!response.ok) throw new Error("Cloud network rejected asset payload.");
+    const fileJson = await response.json();
 
-      const fileJson = await response.json();
-      setUploading(false);
-      setUploadDone(true);
-      onUploadSuccess(fileJson.secure_url);
-
-    } catch (err) {
-      setUploading(false);
-      setFile(null);
-      alert("Cloud delivery pipeline error. Verify endpoint connection limits.");
-      console.error(err);
+    if (!response.ok) {
+      // 🌟 PRINTS THE EXACT REJECTION REASON FROM CLOUDINARY
+      throw new Error(fileJson.error?.message || "Cloud transfer payload rejected.");
     }
-  };
+      
+    setUploading(false);
+    setUploadDone(true);
+    onUploadSuccess(fileJson.secure_url);
 
-
+  } catch (err) {
+    setUploading(false);
+    setFile(null);
+    // Alerts you to the exact issue (e.g., "Upload preset not found")
+    alert(`Cloud Delivery Error: ${err.message}`);
+    console.error(err);
+  }  
 
   const handleDrop = (e) => {
     e.preventDefault();
