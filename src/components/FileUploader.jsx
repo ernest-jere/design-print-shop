@@ -1,4 +1,3 @@
-// src/components/FileUploader.jsx
 import React, { useState, useRef } from 'react';
 import { Upload, File, X, CheckCircle2, Loader2 } from 'lucide-react';
 
@@ -19,16 +18,15 @@ export default function FileUploader({ onUploadSuccess }) {
     }
   };
 
-     const processFile = async (selectedFile) => {
+  const processFile = async (selectedFile) => {
     if (!selectedFile) return;
 
     const targetCloud = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const presetName = import.meta.env.VITE_CLOUDINARY_PRESET;
 
-    // 🌟 SAFETY GUARDRAIL: Catch configuration setup errors gracefully
     if (!targetCloud || !presetName) {
       setFile(null);
-      alert("Configuration Error: Missing Cloudinary environment variables in your .env file. Please check your setup parameters.");
+      alert("Configuration Error: Missing Cloudinary environment variables in your .env file.");
       return;
     }
 
@@ -45,30 +43,29 @@ export default function FileUploader({ onUploadSuccess }) {
     dataPayload.append("file", selectedFile);
     dataPayload.append("upload_preset", presetName);
 
-  try {
-    const response = await fetch(`https://cloudinary.com{targetCloud}/upload`, {
-      method: "POST",
-      body: dataPayload
-    });
+    try {
+      const response = await fetch(`https://cloudinary.com{targetCloud}/upload`, {
+        method: "POST",
+        body: dataPayload
+      });
 
-    const fileJson = await response.json();
+      const fileJson = await response.json();
 
-    if (!response.ok) {
-      // 🌟 PRINTS THE EXACT REJECTION REASON FROM CLOUDINARY
-      throw new Error(fileJson.error?.message || "Cloud transfer payload rejected.");
-    }
+      if (!response.ok) {
+        throw new Error(fileJson.error?.message || "Cloud transfer payload rejected.");
+      }
       
-    setUploading(false);
-    setUploadDone(true);
-    onUploadSuccess(fileJson.secure_url);
+      setUploading(false);
+      setUploadDone(true);
+      onUploadSuccess(fileJson.secure_url);
 
-  } catch (err) {
-    setUploading(false);
-    setFile(null);
-    // Alerts you to the exact issue (e.g., "Upload preset not found")
-    alert(`Cloud Delivery Error: ${err.message}`);
-    console.error(err);
-  }  
+    } catch (err) {
+      setUploading(false);
+      setFile(null);
+      alert(`Cloud Delivery Error: ${err.message}`);
+      console.error(err);
+    }
+  };
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -89,11 +86,11 @@ export default function FileUploader({ onUploadSuccess }) {
   const removeFile = () => {
     setFile(null);
     setUploadDone(false);
-    onUploadSuccess(""); // Flush url parameter reference
+    onUploadSuccess("");
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  return (
+    return (
     <div className="w-full space-y-2">
       <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
         Attach Design Assets or Specifications (Optional)
@@ -122,7 +119,7 @@ export default function FileUploader({ onUploadSuccess }) {
         {!file && (
           <div className="space-y-2">
             <div className="mx-auto p-2.5 bg-white shadow-sm border border-slate-100 text-slate-500 rounded-lg w-fit">
-              <Upload className="h-5 w-5 animate-pulse text-blue-600" />
+              <Upload className="h-5 w-5 text-blue-600 animate-pulse" />
             </div>
             <div>
               <p className="text-xs font-semibold text-slate-700">Drag & drop your files here, or <span className="text-blue-600 underline">browse</span></p>
@@ -160,3 +157,4 @@ export default function FileUploader({ onUploadSuccess }) {
     </div>
   );
 }
+
