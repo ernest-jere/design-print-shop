@@ -19,6 +19,8 @@ export default function FileUploader({ onUploadSuccess }) {
   };
 
   const processFile = async (selectedFile) => {
+    console.log("Active Env Values:", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME, import.meta.env.VITE_CLOUDINARY_PRESET);
+
     if (!selectedFile) return;
 
     const targetCloud = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -44,7 +46,7 @@ export default function FileUploader({ onUploadSuccess }) {
     dataPayload.append("upload_preset", presetName);
 
     try {
-      const response = await fetch(`https://cloudinary.com{targetCloud}/upload`, {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${targetCloud}/upload`, {
         method: "POST",
         body: dataPayload
       });
