@@ -4,6 +4,7 @@ import { ChevronRight, ChevronLeft, Check, Printer, Paintbrush, Layers, ShieldCh
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import FileUploader from './FileUploader';
+import PriceDisplay from './PriceDisplay';
 
 
 export default function QuoteForm() {
@@ -173,8 +174,10 @@ export default function QuoteForm() {
                     onUploadSuccess={(url) => setFormData(prev => ({ ...prev, assetDownloadUrl: url }))} 
                   />
                 </div>
-
               </CardContent>
+              <div className="px-6 pb-2">
+                <PriceDisplay formData={formData} />
+              </div>
               <CardFooter className="flex justify-between border-t border-slate-100 pt-4 bg-slate-50/50 rounded-b-xl">
                 <Button variant="ghost" className="text-slate-600 hover:text-slate-900" onClick={prevStep}><ChevronLeft className="mr-1 h-4 w-4" /> Back</Button>
                 <Button disabled={!formData.description.trim()} onClick={nextStep} className="bg-slate-900 text-white hover:bg-slate-800">Next Step <ChevronRight className="ml-1 h-4 w-4" /></Button>
@@ -204,6 +207,9 @@ export default function QuoteForm() {
                     <input type="tel" className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm text-slate-900 outline-none focus:border-blue-500" value={formData.clientPhone} onChange={(e) => setFormData({...formData, clientPhone: e.target.value})} />
                   </div>
                 </CardContent>
+                <div className="px-6 pb-2">
+                  <PriceDisplay formData={formData} />
+                </div>
                 <CardFooter className="flex justify-between border-t border-slate-100 pt-4 bg-slate-50/50 rounded-b-xl">
                   <Button type="button" variant="ghost" className="text-slate-600 hover:text-slate-900" onClick={prevStep}><ChevronLeft className="mr-1 h-4 w-4" /> Back</Button>
                   <Button type="submit" disabled={status === "submitting" || !formData.clientName || !formData.clientEmail} className={`text-white transition-all ${status === "submitting" ? "bg-slate-400" : "bg-blue-600 hover:bg-blue-700"}`}>
