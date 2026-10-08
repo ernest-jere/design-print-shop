@@ -107,7 +107,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* LEAD MONITOR CARDS STACK */}
-      <div className="space-y-3">
+      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
         {filteredOrders.length === 0 ? (
           <div className="text-center py-12 border border-dashed rounded-xl bg-white text-slate-400 text-xs">
             No active client briefs match your current filter parameters. Try sending a form test first!
