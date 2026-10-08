@@ -30,9 +30,11 @@ export function saveLocalOrder(orderData) {
 export function getLocalOrders() {
   try {
     const orders = localStorage.getItem('design_print_orders');
+    // 🌟 THE ARRAYS FALLBACK GUARD
     return orders ? JSON.parse(orders) : [];
-  } catch {
-    return [];
+  } catch (err) {
+    console.error("Local storage decoding exception:", err);
+    return []; // Never return null or undefined
   }
 }
 

@@ -1,10 +1,8 @@
-// src/components/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { getLocalOrders, updateLocalOrder } from './orderStorage';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter } from 'lucide-react';
-
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
@@ -12,25 +10,32 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    setOrders(getLocalOrders());
+    const fetchedOrders = getLocalOrders();
+    // Guard against non-array or null returns
+    setOrders(Array.isArray(fetchedOrders) ? fetchedOrders : []);
   }, []);
 
   const handleStatusChange = (orderId, newStatus) => {
     updateLocalOrder(orderId, { status: newStatus });
-    setOrders(getLocalOrders()); // Re-flush state
+    const fetchedOrders = getLocalOrders();
+    setOrders(Array.isArray(fetchedOrders) ? fetchedOrders : []);
   };
 
-  const filteredOrders = orders.filter(order => {
+  // Safe array wrapping prevents uncaught array filtering exceptions
+  const safeOrders = Array.isArray(orders) ? orders : [];
+
+  const filteredOrders = safeOrders.filter(order => {
+    if (!order) return false;
     const matchesStatus = filterStatus === "All" || order.status === filterStatus;
     const matchesSearch = 
-      order.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.productCategory?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.clientEmail?.toLowerCase().includes(searchTerm.toLowerCase());
+      (order.clientName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.productCategory || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.clientEmail || "").toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
   return (
-    <div className="w-full space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+    <div className="w-full space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">Order & Lead Management Workspace</h2>
@@ -42,7 +47,7 @@ export default function AdminDashboard() {
             <input 
               type="text" 
               placeholder="Search client or pipeline..." 
-              className="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl bg-white outline-none focus:border-blue-500"
+              className="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl bg-white outline-none focus:border-blue-500 text-slate-900"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -53,16 +58,25 @@ export default function AdminDashboard() {
       {/* METRIC ANALYSIS CAROUSEL BANNER */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="bg-white border border-slate-200 shadow-sm">
-          <CardHeader className="py-3 flex flex-row items-center justify-between"><CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Requests</CardTitle><Briefcase className="h-4 w-4 text-blue-600" /></CardHeader>
-          <CardContent><p className="text-2xl font-black text-slate-900">{orders.length}</p></CardContent>
+          <CardHeader className="py-3 flex flex-row items-center justify-between">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Requests</CardTitle>
+            <Briefcase className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent><p className="text-2xl font-black text-slate-900">{safeOrders.length}</p></CardContent>
         </Card>
         <Card className="bg-white border border-slate-200 shadow-sm">
-          <CardHeader className="py-3 flex flex-row items-center justify-between"><CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">Pending Review</CardTitle><Clock className="h-4 w-4 text-amber-500" /></CardHeader>
-          <CardContent><p className="text-2xl font-black text-slate-900">{orders.filter(o => o.status === 'New / Unreviewed').length}</p></CardContent>
+          <CardHeader className="py-3 flex flex-row items-center justify-between">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">Pending Review</CardTitle>
+            <Clock className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent><p className="text-2xl font-black text-slate-900">{safeOrders.filter(o => o?.status === 'New / Unreviewed').length}</p></CardContent>
         </Card>
         <Card className="bg-white border border-slate-200 shadow-sm">
-          <CardHeader className="py-3 flex flex-row items-center justify-between"><CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">Locked / Active</CardTitle><CheckCircle2 className="h-4 w-4 text-emerald-500" /></CardHeader>
-          <CardContent><p className="text-2xl font-black text-slate-900">{orders.filter(o => o.status === 'In Production' || o.status === 'Quoted').length}</p></CardContent>
+          <CardHeader className="py-3 flex flex-row items-center justify-between">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">Locked / Active</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          </CardHeader>
+          <CardContent><p className="text-2xl font-black text-slate-900">{safeOrders.filter(o => o?.status === 'In Production' || o?.status === 'Quoted').length}</p></CardContent>
         </Card>
       </div>
 
@@ -89,14 +103,14 @@ export default function AdminDashboard() {
           </div>
         ) : (
           filteredOrders.map((order) => (
-            <div key={order.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+            <div key={order.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all grid grid-cols-1 lg:grid-cols-12 gap-4 items-start text-left">
               <div className="lg:col-span-4 space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-black font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
                     {order.id}
                   </span>
                   <span className="text-[10px] text-slate-400 font-medium">
-                    {new Date(order.timestamp).toLocaleDateString('en-ZA')}
+                    {order.timestamp ? new Date(order.timestamp).toLocaleDateString('en-ZA') : ''}
                   </span>
                 </div>
                 <h3 className="font-bold text-slate-900 text-base">{order.clientName}</h3>
@@ -120,7 +134,7 @@ export default function AdminDashboard() {
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-600 line-clamp-3 bg-slate-50 p-2.5 rounded-lg border border-slate-100 italic leading-relaxed">
+                <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 italic leading-relaxed">
                   "{order.description}"
                 </p>
                 {order.assetDownloadUrl && (
@@ -138,8 +152,8 @@ export default function AdminDashboard() {
               <div className="lg:col-span-3 lg:text-right space-y-2 lg:ml-auto w-full">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Pipeline Status</label>
                 <select 
-                  className="w-full lg:w-48 text-xs p-2 border border-slate-200 rounded-lg bg-white font-medium outline-none focus:border-blue-500"
-                  value={order.status}
+                  className="w-full lg:w-48 text-xs p-2 border border-slate-200 rounded-lg bg-white font-medium outline-none focus:border-blue-500 text-slate-900"
+                  value={order.status || "New / Unreviewed"}
                   onChange={(e) => handleStatusChange(order.id, e.target.value)}
                 >
                   <option value="New / Unreviewed">New / Unreviewed</option>
