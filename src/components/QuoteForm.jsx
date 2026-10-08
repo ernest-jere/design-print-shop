@@ -34,10 +34,18 @@ export default function QuoteForm() {
     exit: (dir) => ({ x: dir < 0 ? 80 : -80, opacity: 0 })
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("submitting");
 
+    // 🌟 1. LOG CAPTURE DIRECTLY AT SUBMIT TIME (FORCED SYNCHRONOUS RUN)
+    try {
+      saveLocalOrder(formData);
+    } catch (storageErr) {
+      console.error("Local client logging error:", storageErr);
+    }
+
+    // 2. Pack multi-form details for external delivery pipelines
     const submissionData = new FormData();
     submissionData.append("access_key", import.meta.env.VITE_WEB3FORMS_KEY);
     
@@ -45,21 +53,9 @@ export default function QuoteForm() {
       submissionData.append(key, formData[key]);
     });
 
-    // 🌟 LOCAL STORAGE SAFETY GUARDRAIL
+    // 3. Web3Forms Delivery Ingest Chain
     try {
-      if (typeof saveLocalOrder === 'function') {
-        saveLocalOrder(formData);
-      } else {
-        console.warn("saveLocalOrder utility function is not loaded correctly.");
-      }
-    } catch (storageError) {
-      console.error("Local storage caching bypassed:", storageError);
-      // The form will keep running even if local storage is blocked by the browser
-    }
-
-    // MAIN WEB3FORMS EMAIL PIPELINE
-    try {
-      const response = await fetch("https://api.web3forms.com/submit", {
+      const response = await fetch("https://web3forms.com", {
         method: "POST",
         body: submissionData
       });
@@ -67,17 +63,16 @@ export default function QuoteForm() {
 
       if (data.success) {
         setStatus("success");
-        setStep(5); // Transition directly to the green success card
+        setStep(5); // Transition directly to the green success step card
       } else {
         setStatus("error");
-        alert("Submission failed: " + data.message);
+        alert("Web3Forms Routing Error: " + data.message);
       }
     } catch (err) {
       setStatus("error");
-      alert("A network error occurred. Please verify your internet connection.");
+      alert("A network delivery exception occurred. Verify server endpoints.");
     }
   };
-
 
 
   return (
