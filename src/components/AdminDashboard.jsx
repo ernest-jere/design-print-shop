@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { getLocalOrders, updateLocalOrder } from './orderStorage';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter } from 'lucide-react';
@@ -9,19 +8,31 @@ export default function AdminDashboard() {
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
 
+  // 🌟 NATIVE SELF-CONTAINED DATA RETRIEVAL HOOK
   useEffect(() => {
-    const fetchedOrders = getLocalOrders();
-    // Guard against non-array or null returns
-    setOrders(Array.isArray(fetchedOrders) ? fetchedOrders : []);
+    try {
+      const stored = localStorage.getItem('design_print_orders');
+      setOrders(stored ? JSON.parse(stored) : []);
+    } catch (e) {
+      setOrders([]);
+    }
   }, []);
 
+  // 🌟 NATIVE STATUS RE-MUTATION ENGINE
   const handleStatusChange = (orderId, newStatus) => {
-    updateLocalOrder(orderId, { status: newStatus });
-    const fetchedOrders = getLocalOrders();
-    setOrders(Array.isArray(fetchedOrders) ? fetchedOrders : []);
+    try {
+      const stored = localStorage.getItem('design_print_orders');
+      const currentOrders = stored ? JSON.parse(stored) : [];
+      const updatedOrders = currentOrders.map(order => 
+        order.id === orderId ? { ...order, status: newStatus } : order
+      );
+      localStorage.setItem('design_print_orders', JSON.stringify(updatedOrders));
+      setOrders(updatedOrders);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  // Safe array wrapping prevents uncaught array filtering exceptions
   const safeOrders = Array.isArray(orders) ? orders : [];
 
   const filteredOrders = safeOrders.filter(order => {
@@ -99,7 +110,7 @@ export default function AdminDashboard() {
       <div className="space-y-3">
         {filteredOrders.length === 0 ? (
           <div className="text-center py-12 border border-dashed rounded-xl bg-white text-slate-400 text-xs">
-            No active client briefs match your current filter parameters.
+            No active client briefs match your current filter parameters. Try sending a form test first!
           </div>
         ) : (
           filteredOrders.map((order) => (
