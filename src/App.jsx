@@ -1,13 +1,12 @@
 // src/App.jsx
-import React from 'react'
+import React, { useState } from 'react'
 import QuoteForm from './components/QuoteForm'
 import PortfolioGrid from './components/PortfolioGrid'
-import { Paintbrush, ShieldCheck, Clock3, Layers, Printer } from 'lucide-react'
-import AdminDashboard from './components/AdminDashboard';
-
+import AdminDashboard from './components/AdminDashboard'
+import { ShieldCheck, Layers, Printer, Clock3 } from 'lucide-react'
 
 export default function App() {
-  const [isAdminView, setIsAdminView] = React.useState(false);
+  const [isAdminView, setIsAdminView] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white">
@@ -31,19 +30,25 @@ export default function App() {
         </div>
       </header>
 
-      {/* CORE HERO WRAPPER GRID */}
-      <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16 space-y-20">
+      {/* CORE DYNAMIC MAIN VIEW ENGINE */}
+      <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         {isAdminView ? (
-          <button 
-            type="button"
-            onClick={() => setIsAdminView(false)} 
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors cursor-pointer"
-          >
-            ← Return to Public Portfolio View
-          </button>
+          // 🌟 ISOLATED ADMIN CONTAINER PREVENTS TIGHT HEIGHT COLLAPSING
+          <div className="w-full space-y-6 pt-4 animate-in fade-in duration-200">
+            <button 
+              type="button"
+              onClick={() => setIsAdminView(false)} 
+              className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors cursor-pointer"
+            >
+              ← Return to Public Portfolio View
+            </button>
+            <AdminDashboard />
+          </div>
         ) : (
-          <>
+          // PUBLIC HERO / FORM CONTAINER GRID
+          <div className="space-y-20">
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start">
+              
               {/* VALUE PROPOSITION AREA */}
               <div className="space-y-6 lg:col-span-6 text-center lg:text-left lg:sticky lg:top-24">
                 <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl leading-[1.1]">
@@ -85,22 +90,21 @@ export default function App() {
               </div>
               <PortfolioGrid />
             </div>
-          </>
+          </div>
         )}
       </main>
-      
+
       {/* FOOTER BASICS OUTLINE */}
-      <footer className="border-t border-slate-200 bg-white py-6">
-        <div className="mx-auto max-w-6xl px-4 text-center text-xs text-slate-500 sm:px-6">
-          &copy; {new Date().getFullYear()} DesignPrint Studio. Evaluation processing managed securely via Web3Forms API framework.
-          
+      <footer className="border-t border-slate-200 bg-white py-6 mt-12">
+        <div className="mx-auto max-w-6xl px-4 text-center text-xs text-slate-500 sm:px-6 flex items-center justify-center flex-wrap gap-2">
+          <span>&copy; {new Date().getFullYear()} DesignPrint Studio. Evaluation processing managed securely via Web3Forms API framework.</span>
           <button 
+            type="button"
             onClick={() => setIsAdminView(!isAdminView)} 
-            className="text-slate-400 hover:text-blue-600 transition-colors cursor-pointer text-[10px] ml-4 font-mono uppercase tracking-wider"
+            className="text-slate-400 hover:text-blue-600 transition-colors cursor-pointer text-[10px] font-mono uppercase tracking-wider ml-2"
           >
             [Studio Control Log]
           </button>
-
         </div>
       </footer>
 
