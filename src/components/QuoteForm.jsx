@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import FileUploader from './FileUploader';
 import PriceDisplay from './PriceDisplay';
-import { saveLocalOrder } from '../utils/orderStorage'; 
-
+import { saveLocalOrder } from './orderStorage';
 
 
 export default function QuoteForm() {
@@ -36,29 +35,39 @@ export default function QuoteForm() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setStatus("submitting");
+    e.preventDefault();
+    setStatus("submitting");
 
-  const submissionData = new FormData();
-  submissionData.append("access_key", import.meta.env.VITE_WEB3FORMS_KEY);
+    const submissionData = new FormData();
+    submissionData.append("access_key", import.meta.env.VITE_WEB3FORMS_KEY);
     
-  Object.keys(formData).forEach(key => {
-    submissionData.append(key, formData[key]);
-  });
-
-  try {
-    // 🌟 CACHE LEAD IN LOCAL STORAGE BEFORE API DELIVERY
-    saveLocalOrder(formData);
-
-    const response = await fetch("https://web3forms.com", {
-      method: "POST",
-      body: submissionData
+    Object.keys(formData).forEach(key => {
+      submissionData.append(key, formData[key]);
     });
-    const data = await response.json();
 
-    if (data.success) {
+    // 🌟 LOCAL STORAGE SAFETY GUARDRAIL
+    try {
+      if (typeof saveLocalOrder === 'function') {
+        saveLocalOrder(formData);
+      } else {
+        console.warn("saveLocalOrder utility function is not loaded correctly.");
+      }
+    } catch (storageError) {
+      console.error("Local storage caching bypassed:", storageError);
+      // The form will keep running even if local storage is blocked by the browser
+    }
+
+    // MAIN WEB3FORMS EMAIL PIPELINE
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: submissionData
+      });
+      const data = await response.json();
+
+      if (data.success) {
         setStatus("success");
-        setStep(5);
+        setStep(5); // Transition directly to the green success card
       } else {
         setStatus("error");
         alert("Submission failed: " + data.message);
@@ -68,6 +77,7 @@ export default function QuoteForm() {
       alert("A network error occurred. Please verify your internet connection.");
     }
   };
+
 
 
   return (
