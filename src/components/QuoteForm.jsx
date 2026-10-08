@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import FileUploader from './FileUploader';
 import PriceDisplay from './PriceDisplay';
+import { saveLocalOrder } from '../utils/orderStorage'; 
+
 
 
 export default function QuoteForm() {
@@ -45,7 +47,10 @@ export default function QuoteForm() {
   });
 
   try {
-    const response = await fetch("https://api.web3forms.com/submit", {
+    // 🌟 CACHE LEAD IN LOCAL STORAGE BEFORE API DELIVERY
+    saveLocalOrder(formData);
+
+    const response = await fetch("https://web3forms.com", {
       method: "POST",
       body: submissionData
     });
