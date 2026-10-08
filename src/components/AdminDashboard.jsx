@@ -1,8 +1,8 @@
 // src/components/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { getLocalOrders, updateLocalOrder } from './orderStorage';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button"; // 🌟 Fixed Import Guard
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
 import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter } from 'lucide-react';
 
 
