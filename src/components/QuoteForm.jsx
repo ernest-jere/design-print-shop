@@ -55,7 +55,7 @@ export default function QuoteForm() {
 
     // 3. Web3Forms Delivery Ingest Chain
     try {
-      const response = await fetch("https://web3forms.com", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         body: submissionData
       });
