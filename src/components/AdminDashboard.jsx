@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter } from 'lucide-react';
+import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter, Download } from 'lucide-react';
+
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
@@ -45,7 +46,65 @@ export default function AdminDashboard() {
     return matchesStatus && matchesSearch;
   });
 
-  return (
+    // 🌟 NATIVE CSV EXTRACTION SHEET PARSER
+  const exportToCSV = () => {
+    if (safeOrders.length === 0) {
+      alert("No order logs available to export.");
+      return;
+    }
+
+    // 1. Define clean spreadsheet column headers
+    const headers = [
+      "Order ID",
+      "Date Created",
+      "Client Name",
+      "Email Address",
+      "Phone Number",
+      "Service Pillar",
+      "Category Deliverable",
+      "Estimated Quantity",
+      "Material Finish",
+      "Project Requirements Brief",
+      "Cloudinary Asset Download URL",
+      "Pipeline Status"
+    ];
+
+    // 2. Map and clean order rows (escaping quotation marks to prevent breaking cells)
+    const csvRows = safeOrders.map(order => {
+      const cleanDesc = (order.description || "").replace(/"/g, '""');
+      return [
+        `"${order.id || ''}"`,
+        `"${order.timestamp ? new Date(order.timestamp).toLocaleDateString('en-ZA') : ''}"`,
+        `"${(order.clientName || '').replace(/"/g, '""')}"`,
+        `"${order.clientEmail || ''}"`,
+        `"${order.clientPhone || ''}"`,
+        `"${order.serviceType || ''}"`,
+        `"${order.productCategory || ''}"`,
+        `"${order.quantity || ''}"`,
+        `"${order.paperFinish || ''}"`,
+        `"${cleanDesc}"`,
+        `"${order.assetDownloadUrl || ''}"`,
+        `"${order.status || 'New / Unreviewed'}"`
+      ].join(",");
+    });
+
+    // 3. Combine headers and spreadsheet data matrices into a flat data string
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(","), ...csvRows].join("\n");
+
+    // 4. Trigger browser native file download execution
+    const encodedUri = encodeURI(csvContent);
+    const downloadLink = document.createElement("a");
+    downloadLink.setAttribute("href", encodedUri);
+    downloadLink.setAttribute("download", `DesignPrint_Orders_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(downloadLink);
+    
+    downloadLink.click(); // Fires the download instantly
+    document.body.removeChild(downloadLink); // Clean up the DOM element
+  };
+
+
+  return (    
     <div className="w-full space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
         <div>
@@ -54,6 +113,17 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative w-full sm:w-64">
+
+            {/* PLACE THIS DIRECTLY TO THE RIGHT OF YOUR SEARCH INPUT CONTAINER DIV */}
+            <Button 
+              onClick={exportToCSV}
+              variant="outline"
+              className="text-xs font-semibold rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 h-9 flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer"
+            >
+              <Download className="h-4 w-4 text-blue-600" />
+              Export to Excel (.CSV)
+            </Button>
+
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <input 
               type="text" 
