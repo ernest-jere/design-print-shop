@@ -112,9 +112,7 @@ export default function AdminDashboard() {
           <p className="text-xs text-slate-500">Track incoming client parameters, design scopes, and prepress briefs locally.</p>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative w-full sm:w-64">
-
-            {/* PLACE THIS DIRECTLY TO THE RIGHT OF YOUR SEARCH INPUT CONTAINER DIV */}
+          {/* PLACE THIS DIRECTLY TO THE RIGHT OF YOUR SEARCH INPUT CONTAINER DIV */}
             <Button 
               onClick={exportToCSV}
               variant="outline"
@@ -123,6 +121,7 @@ export default function AdminDashboard() {
               <Download className="h-4 w-4 text-blue-600" />
               Export to Excel (.CSV)
             </Button>
+          <div className="relative w-full sm:w-64">
 
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <input 
