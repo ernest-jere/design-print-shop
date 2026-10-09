@@ -4,6 +4,8 @@ import QuoteForm from './components/QuoteForm'
 import PortfolioGrid from './components/PortfolioGrid'
 import AdminDashboard from './components/AdminDashboard'
 import { ShieldCheck, Layers, Printer, Clock3 } from 'lucide-react'
+import TestimonialSlider from './components/TestimonialSlider';
+
 
 export default function App() {
   const [isAdminView, setIsAdminView] = useState(false);
@@ -89,6 +91,15 @@ export default function App() {
                 <p className="text-sm text-slate-500">Filter previous deployment works across design, code, and manufacturing parameters.</p>
               </div>
               <PortfolioGrid />
+              {/* PLACE THIS DIRECTLY UNDERNEATH YOUR <PortfolioGrid /> COMPONENT CALL */}
+              <div className="border-t border-slate-200 pt-16 space-y-6">
+                <div className="text-center space-y-1">
+                  <h2 className="text-2xl font-bold tracking-tight text-slate-900">What Our Clients Say</h2>
+                  <p className="text-sm text-slate-500 max-w-sm mx-auto">Read honest feedback from companies who trust us with design, code, and manufacturing.</p>
+                </div>
+                <TestimonialSlider />
+              </div>
+
             </div>
           </div>
         )}
