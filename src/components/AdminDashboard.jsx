@@ -113,14 +113,14 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           {/* PLACE THIS DIRECTLY TO THE RIGHT OF YOUR SEARCH INPUT CONTAINER DIV */}
-            <Button 
+          <Button 
               onClick={exportToCSV}
               variant="outline"
               className="text-xs font-semibold rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 h-9 flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer"
             >
               <Download className="h-4 w-4 text-blue-600" />
               Export to Excel (.CSV)
-            </Button>
+            </Button>  
           <div className="relative w-full sm:w-64">
 
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
