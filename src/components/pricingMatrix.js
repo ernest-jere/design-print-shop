@@ -1,25 +1,33 @@
 // src/components/pricingMatrix.js
 
-// 1. Updated Base Setup & Configuration Rates (ZAR)
 const BASE_RATES = {
   design: { base: 1200 },
   print: { base: 650 },
   both: { base: 1850 },
-  web: { base: 4500 },         // Web Design & Development baseline
-  consulting: { base: 1500 }   // Prepress Consultancy baseline
+  web: { base: 4500 },
+  consulting: { base: 1500 }
 };
 
-// 2. Deliverable Multipliers
 const CATEGORY_MULTIPLIERS = {
-  'Business Cards & Stationery': 1.0,
-  'Banners & Large Format': 2.2,
-  'Custom Apparel & Merch': 1.8,
-  'Web Landing Pages': 1.0,
-  'Full-Stack Web Apps': 3.5,
-  'Prepress Preflight Audit': 1.0
+  'Graphic Design': 1.0,
+  'UX/UI Design': 1.5,
+  'Digital Printing': 1.0,
+  'Offset Manufacturing': 2.5,
+  'UX Layout Architecture': 1.2,
+  'Frontend Application Dev': 3.0,
+  'Prepress Preflight Audit': 1.0,
+  'Color Ingest Calibration': 1.4
 };
 
-// 3. Premium Material Finish Modifiers
+// 🌟 ADDED A6 VALUE MULTIPLIER (COMPACT MODIFIER)
+const ISO_PAPER_MULTIPLIERS = {
+  'A3': 1.6,
+  'A4': 1.0,
+  'A5': 0.7,
+  'A6': 0.4, // A6 price weighting factor
+  'DL': 0.5
+};
+
 const FINISH_MODIFIERS = {
   standard: 0,
   gloss: 180,
@@ -27,16 +35,12 @@ const FINISH_MODIFIERS = {
   unsupported: 0
 };
 
-/**
- * Main calculation engine to compute approximate budget brackets
- */
-export function calculateEstimate(serviceType, category, quantityStr, finish) {
-  // Ensure we have a valid baseline rate
+export function calculateEstimate(serviceType, category, quantityStr, finish, isoSize = 'A4', pagesCount = '1') {
   const service = BASE_RATES[serviceType] || { base: 0 };
   const multiplier = CATEGORY_MULTIPLIERS[category] || 1.0;
   const finishCost = FINISH_MODIFIERS[finish] || 0;
+  const paperMultiplier = ISO_PAPER_MULTIPLIERS[isoSize] || 1.0;
 
-  // Safe integer parsing for manufacturing volumes
   let quantity = 1;
   if (quantityStr && typeof quantityStr === 'string') {
     quantity = parseInt(quantityStr.replace(/[^0-9]/g, ''), 10) || 1;
@@ -44,22 +48,19 @@ export function calculateEstimate(serviceType, category, quantityStr, finish) {
     quantity = quantityStr;
   }
 
-  // Base workflow calculation
+  const pages = parseInt(pagesCount, 10) || 1;
   let subtotal = service.base * multiplier;
 
-  // Apply printing production volume tiers if printing services are active
-  if (serviceType === 'print' || serviceType === 'both') {
-    let unitCost = 2.50; // Base cost per print impression
+  if (serviceType === 'print') {
+    let unitCostPerPage = 0.45;
     
-    // Volume tier brackets (Higher quantities lower the unit price)
-    if (quantity > 1000) unitCost = 0.85;
-    else if (quantity > 500) unitCost = 1.20;
-    else if (quantity > 100) unitCost = 1.75;
+    if (quantity > 1000) unitCostPerPage = 0.15;
+    else if (quantity > 500) unitCostPerPage = 0.25;
+    else if (quantity > 100) unitCostPerPage = 0.35;
 
-    subtotal += (quantity * unitCost) + finishCost;
+    subtotal += (quantity * pages * paperMultiplier * unitCostPerPage) + finishCost;
   }
 
-  // Generate an approximate bracket range (±15% safety buffer)
   const lowEstimate = Math.round(subtotal * 0.85);
   const highEstimate = Math.round(subtotal * 1.15);
 

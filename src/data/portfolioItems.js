@@ -2,30 +2,34 @@
 export const portfolioItems = [
   {
     id: 1,
-    title: "Premium Matte Business Cards",
+    title: "Premium Corporate Stationery Suite",
     category: "Print Only Production",
-    tags: ["Stationery", "Offset Print"],
-    description: "Heavyweight 450gsm cards with ultra-crisp edge trims and high-precision spot UV gloss accents."
+    tags: ["Stationery", "Offset Matte"],
+    image: "https://unsplash.com",
+    description: "High-precision print run of 450gsm spot UV business cards and matching folder configurations."
   },
   {
     id: 2,
-    title: "SaaS Application Landing Page",
+    title: "FinTech Enterprise Dashboard",
     category: "Web Design & Development",
-    tags: ["React SPA", "Tailwind UI"],
-    description: "A fast, fully optimized web marketing asset featuring micro-interactions and production dashboards."
+    tags: ["React Frontend", "Tailwind v4"],
+    image: "https://unsplash.com",
+    description: "A fast single-page app architecture running real-time asset charts, system monitoring cards, and user tables."
   },
   {
     id: 3,
     title: "Corporate Identity Style Guide",
     category: "Graphic Design Only",
     tags: ["Vector Asset", "Branding"],
-    description: "Complete scalable brand guidelines package including type hierarchies, modular color grids, and logos."
+    image: "https://unsplash.com",
+    description: "Complete visual identity rebrand guidelines including typography hierarchies, color grids, and scalable logo assets."
   },
   {
     id: 4,
-    title: "Packaging Box Preflight Audit",
+    title: "Packaging Die-Line Preflight Audit",
     category: "Prepress Consultancy",
-    tags: ["Bleed Check", "CMYK Separation"],
-    description: "Comprehensive transparency flattening and color breakdown audit on complex mechanical die-lines."
+    tags: ["Bleed Separation", "CMYK Check"],
+    image: "https://unsplash.com",
+    description: "Rigorous transparency flattening and ink profile audit executed on complex product boxes to ensure zero press errors."
   }
 ];

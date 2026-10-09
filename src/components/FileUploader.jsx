@@ -63,7 +63,7 @@ export default function FileUploader({ onUploadSuccess }) {
     dataPayload.append("upload_preset", presetName);
 
     try {
-      const response = await fetch(`https://cloudinary.com{targetCloud}/upload`, {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${targetCloud}/upload`, {
         method: "POST",
         body: dataPayload
       });
