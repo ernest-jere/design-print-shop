@@ -1,6 +1,6 @@
 # Impressions – Smart Print Engineering, Design & Web Studio Hub
 
-▶️ **Live Production Link:** [https://design-print-shop.vercel.app/]
+▶️ **Live Production Link:** [https://design-print-shop.vercel.app/](https://vercel.app)
 
 Welcome to **Impressions**, a highly performant, accessible multi-step storefront, calculation matrix, and lead management hub built using a modern **React 19, Vite 8, Framer Motion, and Tailwind CSS v4** architecture. 
 
@@ -16,7 +16,7 @@ The system features a deterministic background calculation algorithm (`pricingMa
 *   **Large Format Posters (A3, A2):** Automatically upgrades from *Wide-Format Digital Inkjet* to *Commercial Litho Press* at **200 units** or more.
 *   **Rigid Substrates (Correx Boards):** Automatically routes multi-color work below **100 units** to a *UV Flatbed Digital* setup, and automatically switches to *Industrial Silk Screen Printing Mesh Stencils* at 100+ boards.
 
-### 2. Live Engine Profile Badges
+### 2. Live Engine Profile  Badges
 Directly beneath the ZAR price approximation bracket range (±15% safety buffer), an inline green badge dynamically materializes to reveal the active manufacturing profile being used (e.g., `Engine Profile: Automated High-Speed Litho Press Routing (Volume Tier)`).
 
 ### 3. File Size & Format Inline Validator
