@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter, Download } from 'lucide-react';
+import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter, Download, Trash2 } from 'lucide-react';
+
 
 
 export default function AdminDashboard() {
@@ -121,6 +122,27 @@ export default function AdminDashboard() {
               <Download className="h-4 w-4 text-blue-600" />
               Export to Excel (.CSV)
           </Button>  
+          {/* PLACE THIS DIRECTLY NEXT TO YOUR EXPORT TO EXCEL BUTTON */}
+          <Button 
+            onClick={() => {
+              const confirmClear = window.confirm("⚠️ WARNING: This will permanently delete ALL client briefs and order logs from this local administration workspace ledger. This action cannot be undone. Proceed?");
+              if (confirmClear) {
+                try {
+                  localStorage.removeItem('design_print_orders'); // Evicts the storage key parameter
+                  setOrders([]); // Instantly flushes active state arrays to show a clean slate
+                  alert("Workspace ledger cleared successfully! Ready for live client intakes.");
+                } catch (err) {
+                  console.error("Ledger flush failure:", err);
+                }
+              }
+            }}
+            variant="outline"
+            className="text-xs font-semibold rounded-xl border-rose-200 bg-white hover:bg-rose-50 text-rose-700 h-9 flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer"
+          >
+            <Trash2 className="h-4 w-4 text-rose-600" />
+            Clear Workspace Ledger
+          </Button>
+
           <div className="relative w-full sm:w-64">
 
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />

@@ -5,9 +5,8 @@ import PortfolioGrid from './components/PortfolioGrid'
 import AdminDashboard from './components/AdminDashboard'
 import TestimonialSlider from './components/TestimonialSlider'
 import { ShieldCheck, Layers, Printer, Laptop } from 'lucide-react'
+import LogoAsset from './assets/Impressions.png' // 🌟 NATIVE IMPORT FOR YOUR LOGO ASSET
 
-// 🌟 NATIVE IMPORT FOR YOUR LOGO ASSET
-import LogoAsset from './assets/Impressions.png'
 
 export default function App() {
   const [isAdminView, setIsAdminView] = useState(false);
@@ -19,7 +18,6 @@ export default function App() {
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            {/* 🌟 BRAND LOGO UPGRADE: REPLACED OLD CSS DRAWING WITH IMPRESSIONS.PNG */}
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-50 border border-slate-100 shadow-xs">
               <img 
                 src={LogoAsset} 
@@ -32,9 +30,15 @@ export default function App() {
             </span>
           </div>
           <nav>
-            <a href="#quote-section" className="rounded-xl bg-[#1b5e20] px-4 py-2 text-xs font-semibold text-white hover:bg-[#124116] transition-all shadow-sm">
-              Get Started
-            </a>
+            {/* 🌟 CONDITIONAL NAV GUARD: ONLY RENDERS GET STARTED IF NOT IN ADMIN VIEW */}
+            {!isAdminView && (
+              <a 
+                href="#quote-section" 
+                className="rounded-xl bg-[#1b5e20] px-4 py-2 text-xs font-semibold text-white hover:bg-[#124116] transition-all shadow-sm animate-in fade-in duration-150"
+              >
+                Get Started
+              </a>
+            )}
           </nav>
         </div>
       </header>

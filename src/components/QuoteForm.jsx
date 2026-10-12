@@ -12,7 +12,7 @@ export default function QuoteForm() {
   const [direction, setDirection] = useState(1);
   const [formData, setFormData] = useState({
     serviceType: '', productCategory: '', quantity: '1',
-    pagesCount: '1', isoSize: 'A4', pressEnvironment: 'litho',
+    pagesCount: '1', isoSize: 'A4', printColor: 'cmyk', pressEnvironment: 'litho',
     designOutput: 'vector-svg', paperFinish: 'standard', webScope: 'landing-page', 
     description: '', assetDownloadUrl: '', clientName: '', clientEmail: '', clientPhone: ''
   });
@@ -26,13 +26,19 @@ export default function QuoteForm() {
     exit: (dir) => ({ x: dir < 0 ? 80 : -80, opacity: 0 })
   };
 
+  // 🌟 UPDATED SPECILIZATION MENU MAPS FOR STEP 2
   const getDynamicCategories = () => {
     switch (formData.serviceType) {
-      case 'design': return ['Graphic Design', 'UX/UI Design'];
-      case 'print': return ['Digital Printing', 'Offset Manufacturing'];
-      case 'web': return ['UX Layout Architecture', 'Frontend Application Dev'];
-      case 'consulting': return ['Prepress Preflight Audit', 'Color Ingest Calibration'];
-      default: return [];
+      case 'design': 
+        return ['Graphic Design', 'UX/UI Design'];
+      case 'print': 
+        return ['Digital Printing', 'Offset Manufacturing', 'Correx Board Printing', 'Industrial Screen Printing', 'Dye Sublimation Process'];
+      case 'web': 
+        return ['UX Layout Architecture', 'Frontend Application Dev'];
+      case 'consulting': 
+        return ['Prepress Preflight Audit', 'Color Ingest Calibration'];
+      default: 
+        return [];
     }
   };
 
@@ -87,7 +93,7 @@ export default function QuoteForm() {
                 </button>
                 <button type="button" onClick={() => { setFormData({ ...formData, serviceType: 'print' }); nextStep(); }} className={`flex items-center gap-4 p-3.5 rounded-xl border text-left transition-all bg-white ${formData.serviceType === 'print' ? 'border-[#1b5e20] bg-emerald-50/10' : 'border-slate-200 hover:border-slate-300'}`}>
                   <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><Printer className="h-5 w-5" /></div>
-                  <div><h4 className="font-semibold text-sm text-slate-900">Digital & Offset Print Production</h4><p className="text-xs text-slate-500">High-volume manufacturing runs, signs, stationery, and premium materials.</p></div>
+                  <div><h4 className="font-semibold text-sm text-slate-900">Print Production Suite</h4><p className="text-xs text-slate-500">High-volume manufacturing, screens, sublimation heat transfers, and boards.</p></div>
                 </button>
                 <button type="button" onClick={() => { setFormData({ ...formData, serviceType: 'web' }); nextStep(); }} className={`flex items-center gap-4 p-3.5 rounded-xl border text-left transition-all bg-white ${formData.serviceType === 'web' ? 'border-[#1b5e20] bg-emerald-50/10' : 'border-slate-200 hover:border-slate-300'}`}>
                   <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Laptop className="h-5 w-5" /></div>
@@ -145,11 +151,11 @@ export default function QuoteForm() {
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-xs font-semibold uppercase text-slate-500">Print Volume Quantity</label>
+                        <label className="text-xs font-semibold uppercase text-slate-500">Production Volume Quantity</label>
                         <input type="text" placeholder="e.g. 500 units" className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-emerald-600" value={formData.quantity} onChange={(e) => setFormData({...formData, quantity: e.target.value})} />
                       </div>
                       <div>
-                        <label className="text-xs font-semibold uppercase text-slate-500">Number of Pages</label>
+                        <label className="text-xs font-semibold uppercase text-slate-500">Number of Pages / Multi-Plies</label>
                         <input type="number" min="1" className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-emerald-600" value={formData.pagesCount} onChange={(e) => setFormData({...formData, pagesCount: e.target.value})} />
                       </div>
                     </div>
@@ -157,19 +163,32 @@ export default function QuoteForm() {
                       <div>
                         <label className="text-xs font-semibold uppercase text-slate-500">ISO Paper Standard Size</label>
                         <select className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-emerald-600" value={formData.isoSize} onChange={(e) => setFormData({...formData, isoSize: e.target.value})}>
-                          <option value="A3">A3 Large Format Poster</option>
-                          <option value="A4">A4 Standard Sheet</option>
-                          <option value="A5">A5 Compact Leaflet</option>
-                          <option value="A6">A6 Pocket Size Flyer / Notebook</option>
-                          <option value="DL">DL Envelope / Dimension</option>
+                          <option value="A1">A1 Packaging Die-Line Sheet Layout</option>
+                          <option value="A2">A2 Large Format Promo Poster</option>
+                          <option value="A3">A3 Commercial Poster Sheet</option>
+                          <option value="A4">A4 Standard Document Sheet</option>
+                          <option value="A5">A5 Compact Booklet Leaflet</option>
+                          <option value="A6">A6 Pocket Size Flyer / Note</option>
+                          <option value="DL">DL Envelope flyers</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-xs font-semibold uppercase text-slate-500">Material Surface Finish</label>
+                        <label className="text-xs font-semibold uppercase text-slate-500">Ink Color Profile</label>
+                        <select className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-emerald-600" value={formData.printColor} onChange={(e) => setFormData({...formData, printColor: e.target.value})}>
+                          <option value="cmyk">Full Color Process (CMYK)</option>
+                          <option value="bw">Monochrome / Black & White (B/W)</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div>
+                        <label className="text-xs font-semibold uppercase text-slate-500">Material Substrate / Surface Finish</label>
                         <select className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-emerald-600" value={formData.paperFinish} onChange={(e) => setFormData({...formData, paperFinish: e.target.value})}>
-                          <option value="standard">Standard Matte Base</option>
-                          <option value="gloss">Premium High-Gloss</option>
-                          <option value="uv">Spot UV Accents</option>
+                          <option value="standard">Standard Matte Print Base</option>
+                          <option value="gloss">Premium High-Gloss Coating</option>
+                          <option value="uv">Spot UV Layer Accents</option>
+                          <option value="correx">Correx Fluted Plastic Board (Signage/Posters)</option>
+                          <option value="pack_board">Rigid Folding Packaging Board (Cartons/Dies)</option>
                         </select>
                       </div>
                     </div>
@@ -261,7 +280,7 @@ export default function QuoteForm() {
                   Thank you, <strong>{formData.clientName}</strong>. Your setup parameters have been saved securely. An engineer will reach out to <strong>{formData.clientEmail}</strong> shortly.
                 </p>
                 <div className="pt-4">
-                  <Button variant="outline" className="border-emerald-200 bg-white text-emerald-800 hover:bg-emerald-100/50" onClick={() => { setStep(1); setStatus(""); setFormData({ serviceType:'', productCategory:'', quantity:'1', pagesCount:'1', isoSize:'A4', pressEnvironment:'litho', designOutput:'vector-svg', paperFinish:'standard', webScope:'landing-page', description:'', clientName:'', clientEmail:'', clientPhone:'', assetDownloadUrl:'' }); }}>
+                  <Button variant="outline" className="border-emerald-200 bg-white text-emerald-800 hover:bg-emerald-100/50" onClick={() => { setStep(1); setStatus(""); setFormData({ serviceType:'', productCategory:'', quantity:'1', pagesCount:'1', isoSize:'A4', printColor:'cmyk', pressEnvironment:'litho', designOutput:'vector-svg', paperFinish:'standard', webScope:'landing-page', description:'', clientName:'', clientEmail:'', clientPhone:'', assetDownloadUrl:'' }); }}>
                     Submit Alternative Brief
                   </Button>
                 </div>
