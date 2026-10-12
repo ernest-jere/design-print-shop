@@ -1,6 +1,6 @@
 # Impressions – Smart Print Engineering, Design & Web Studio Hub
 
-▶️ **Live Production Link:** [https://design-print-shop.vercel.app/](https://vercel.app)
+▶️ **Live Production Link:** [https://design-print-shop.vercel.app/](https://design-print-shop.vercel.app/)
 
 Welcome to **Impressions**, a highly performant, accessible multi-step storefront, calculation matrix, and lead management hub built using a modern **React 19, Vite 8, Framer Motion, and Tailwind CSS v4** architecture. 
 
