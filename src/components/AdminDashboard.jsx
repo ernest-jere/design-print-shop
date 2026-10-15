@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter, Download, Trash2 } from 'lucide-react';
-
+import { calculateEstimate } from './pricingMatrix';
 
 
 export default function AdminDashboard() {
@@ -264,6 +264,42 @@ export default function AdminDashboard() {
                   <option value="Completed">Completed</option>
                 </select>
               </div>
+              // 🌟 PREFERRED BUNDLER SYNTAX FOR THE ADMINDASHBOARD LOOP ROW:
+              <div className="lg:col-span-3 bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2 lg:ml-auto w-full text-left">
+                {(() => {
+                  const est = calculateEstimate(
+                    order.serviceType, order.productCategory, order.quantity, 
+                    order.paperFinish, order.isoSize, order.pagesCount, order.printColor
+                  );
+                  return (
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Internal ZAR Guide</label>
+                      <p className="text-sm font-extrabold text-slate-900 leading-none">
+                        R {est.low.toLocaleString()} - R {est.high.toLocaleString()}
+                      </p>
+                      <p className="text-[9px] text-emerald-700 font-medium leading-tight">
+                        Route: {est.routedWorkflow}
+                      </p>
+                    </div>
+                  );
+                })()}
+                
+                <div className="pt-1.5 border-t border-slate-200/60">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Pipeline Status</label>
+                  <select 
+                    className="w-full text-xs p-1.5 border border-slate-200 rounded-lg bg-white font-medium outline-none text-slate-900"
+                    value={order.status || "New / Unreviewed"}
+                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                  >
+                    <option value="New / Unreviewed">New / Unreviewed</option>
+                    <option value="Quoted">Quoted & Sent</option>
+                    <option value="In Production">In Production</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+
+
             </div>
           ))
         )}
