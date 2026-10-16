@@ -121,7 +121,14 @@ export default function App() {
           <span>&copy; {new Date().getFullYear()} Impressions Studio. All evaluation assets processed securely.</span>
           <button 
             type="button"
-            onClick={() => setIsAdminView(!isAdminView)} 
+            onClick={() => {
+              const accessKey = window.prompt("Enter Secure Studio Passphrase:");
+              if (accessKey === "ImpressionsAdmin2026") { // Set your own private passphrase here
+                setIsAdminView(!isAdminView);
+              } else {
+                alert("Access Denied: Invalid Administrative Credentials.");
+              }
+            }} 
             className="text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer text-[10px] font-mono uppercase tracking-wider ml-2"
           >
             [Studio Control Log]
