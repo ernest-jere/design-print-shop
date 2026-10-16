@@ -206,7 +206,9 @@ export default function AdminDashboard() {
         ) : (
           filteredOrders.map((order) => (
             <div key={order.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all grid grid-cols-1 lg:grid-cols-12 gap-4 items-start text-left">
-              <div className="lg:col-span-4 space-y-1">
+              
+              
+              <div className="lg:col-span-3 space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-black font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
                     {order.id}
@@ -222,7 +224,23 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="lg:col-span-5 space-y-2">
+              <div className="lg:col-span-3 bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2 lg:ml-auto w-full text-left">
+                <div className="pt-1.5 border-t border-slate-200/60">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Pipeline Status</label>
+                  <select 
+                    className="w-full text-xs p-1.5 border border-slate-200 rounded-lg bg-white font-medium outline-none text-slate-900"
+                    value={order.status || "New / Unreviewed"}
+                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                  >
+                    <option value="New / Unreviewed">New / Unreviewed</option>
+                    <option value="Quoted">Quoted & Sent</option>
+                    <option value="In Production">In Production</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="lg:col-span-3 space-y-2">
                 <div className="flex flex-wrap gap-1.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
                     {order.serviceType}
@@ -251,20 +269,6 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              <div className="lg:col-span-3 lg:text-right space-y-2 lg:ml-auto w-full">
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Pipeline Status</label>
-                <select 
-                  className="w-full lg:w-48 text-xs p-2 border border-slate-200 rounded-lg bg-white font-medium outline-none focus:border-blue-500 text-slate-900"
-                  value={order.status || "New / Unreviewed"}
-                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                >
-                  <option value="New / Unreviewed">New / Unreviewed</option>
-                  <option value="Quoted">Quoted & Sent</option>
-                  <option value="In Production">In Production</option>
-                  <option value="Completed">Completed</option>
-                </select>
-              </div>
-              // 🌟 PREFERRED BUNDLER SYNTAX FOR THE ADMINDASHBOARD LOOP ROW:
               <div className="lg:col-span-3 bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2 lg:ml-auto w-full text-left">
                 {(() => {
                   const est = calculateEstimate(
@@ -283,23 +287,8 @@ export default function AdminDashboard() {
                     </div>
                   );
                 })()}
-                
-                <div className="pt-1.5 border-t border-slate-200/60">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Pipeline Status</label>
-                  <select 
-                    className="w-full text-xs p-1.5 border border-slate-200 rounded-lg bg-white font-medium outline-none text-slate-900"
-                    value={order.status || "New / Unreviewed"}
-                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                  >
-                    <option value="New / Unreviewed">New / Unreviewed</option>
-                    <option value="Quoted">Quoted & Sent</option>
-                    <option value="In Production">In Production</option>
-                    <option value="Completed">Completed</option>
-                  </select>
-                </div>
               </div>
-
-
+              
             </div>
           ))
         )}
