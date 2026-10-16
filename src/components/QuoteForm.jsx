@@ -162,6 +162,7 @@ export default function QuoteForm() {
                     <div>
                       <div className="flex justify-between items-center"><label className="text-xs font-semibold uppercase text-slate-500">Target Press Production Environment</label><span className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">[Optional]</span></div>
                       <select name="pressEnvironment" className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-emerald-600" value={formData.pressEnvironment} onChange={(e) => setFormData({...formData, pressEnvironment: e.target.value})}>
+                        <option value="unspecified">Bypass / Describe manually in description brief below</option>
                         <option value="litho">Offset Lithography (High-Volume)</option>
                         <option value="flexo">Flexography (Packaging/Labels)</option>
                         <option value="gravure">Rotogravure (Commercial Publications)</option>
@@ -187,6 +188,7 @@ export default function QuoteForm() {
                       <div>
                         <div className="flex justify-between items-center"><label className="text-xs font-semibold uppercase text-slate-500">ISO Paper Standard Size</label><span className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">[Optional]</span></div>
                         <select name="isoSize" className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-emerald-600" value={formData.isoSize} onChange={(e) => setFormData({...formData, isoSize: e.target.value})}>
+                          <option value="unspecified">Bypass / Describe manually in description brief below</option>
                           <option value="A1">A1 Packaging Die-Line Sheet Layout</option>
                           <option value="A2">A2 Large Format Promo Poster</option>
                           <option value="A3">A3 Commercial Poster Sheet</option>
@@ -199,6 +201,7 @@ export default function QuoteForm() {
                       <div>
                         <div className="flex justify-between items-center"><label className="text-xs font-semibold uppercase text-slate-500">Ink Color Profile</label><span className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">[Optional]</span></div>
                         <select name="printColor" className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-emerald-600" value={formData.printColor} onChange={(e) => setFormData({...formData, printColor: e.target.value})}>
+                          <option value="unspecified">Bypass / Describe manually in description brief below</option>
                           <option value="cmyk">Full Color Process (CMYK)</option>
                           <option value="bw">Monochrome / Black & White (B/W)</option>
                         </select>
@@ -208,6 +211,7 @@ export default function QuoteForm() {
                       <div>
                         <div className="flex justify-between items-center"><label className="text-xs font-semibold uppercase text-slate-500">Material Substrate / Finish</label><span className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">[Optional]</span></div>
                         <select name="paperFinish" className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none focus:border-emerald-600" value={formData.paperFinish} onChange={(e) => setFormData({...formData, paperFinish: e.target.value})}>
+                          <option value="unspecified">Bypass / Describe manually in description brief below</option>
                           <option value="standard">Standard Matte Print Base</option>
                           <option value="gloss">Premium High-Gloss Coating</option>
                           <option value="uv">Spot UV Layer Accents</option>
@@ -218,11 +222,12 @@ export default function QuoteForm() {
                     </div>
                   </div>
                 )}
-                                {formData.serviceType === 'web' && (
+                {formData.serviceType === 'web' && (
                   <div className="grid grid-cols-1 gap-3">
                     <div>
                       <div className="flex justify-between items-center"><label className="text-xs font-semibold uppercase text-slate-500">Target Framework Scope</label><span className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">[Optional]</span></div>
                       <select name="webScope" className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-900 outline-none" value={formData.webScope} onChange={(e) => setFormData({...formData, webScope: e.target.value})}>
+                        <option value="unspecified">Bypass / Describe manually in description brief below</option>
                         <option value="landing-page">Single Page Responsive UI</option>
                         <option value="full-stack">Multi-Route React Dashboard Application</option>
                         <option value="ecom">Custom Commerce Storefront</option>
