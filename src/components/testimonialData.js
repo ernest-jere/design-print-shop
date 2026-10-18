@@ -14,7 +14,7 @@ export const testimonialData = [
     company: "Bloom Digital",
     service: "Web Design & Development",
     rating: 5,
-    text: "The React website built by DesignPrint Studio is blazing fast. Our customers can describe custom graphics orders seamlessly, and the intake pipeline is completely automated. Outstanding work!"
+    text: "The React website built by Impressions is blazing fast. Our customers can describe custom graphics orders seamlessly, and the intake pipeline is completely automated. Outstanding work!"
   },
   {
     id: 3,

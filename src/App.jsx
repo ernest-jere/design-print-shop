@@ -63,8 +63,8 @@ export default function App() {
               {/* BRAND VALUE BANNER */}
               <div className="space-y-6 lg:col-span-6 text-center lg:text-left lg:sticky lg:top-24">
                 <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl leading-[1.1]">
-                  <span className="text-green-700">Digital & Print Products,</span> <span className="text-red-700">Frontend Design <br />& Development</span> <br />&  
-                  <span className="text-[#00c853]"> Prepress Consultancy.</span>
+                  <span className="text-green-700">Design & Print,</span> <span className="text-red-700">Websites <br />& Apps</span> <br />&  
+                  <span className="text-[#00c853]"> Prepress Artworks.</span>
                 </h1>
                 <p className="mx-auto lg:mx-0 max-w-md text-base text-slate-600 leading-relaxed">
                   Submit your technical requirements, source files, or system specs to start your project. We evaluate custom web code configurations and execute rigid prepress preflights manually to ensure absolute layout precision before deployment.
