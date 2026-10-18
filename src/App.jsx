@@ -63,8 +63,11 @@ export default function App() {
               {/* BRAND VALUE BANNER */}
               <div className="space-y-6 lg:col-span-6 text-center lg:text-left lg:sticky lg:top-24">
                 <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl leading-[1.1]">
-                  <span className="text-green-700">Design & Print,</span> <span className="text-red-700">Websites <br />& Apps</span> <br />&  
-                  <span className="text-[#00c853]"> Prepress Artworks.</span>
+                  <span className="text-blue-700">Design, </span>
+                  <span className="text-green-700">Prepress Artworks, </span>
+                  <span className="text-red-700">Print, </span> 
+                  <span className="text-[#ff6d00]"> Digital Assets, </span>
+                  <span className="text-[#00c853]">Websites</span> & <span className="text-[#d500f9]">Apps</span>
                 </h1>
                 <p className="mx-auto lg:mx-0 max-w-md text-base text-slate-600 leading-relaxed">
                   Submit your technical requirements, source files, or system specs to start your project. We evaluate custom web code configurations and execute rigid prepress preflights manually to ensure absolute layout precision before deployment.
@@ -72,7 +75,7 @@ export default function App() {
                 
                 {/* VALUE MATRIX METRICS */}
                 <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left max-w-md mx-auto lg:mx-0">
-                  <div className="flex items-start gap-2.5">ss
+                  <div className="flex items-start gap-2.5">
                     <div className="mt-0.5 rounded-md bg-emerald-50 p-1 text-[#1b5e20]"><Laptop className="h-4 w-4" /></div>
                     <div><h4 className="text-xs font-bold text-slate-900">Web Frontend</h4><p className="text-[10px] text-slate-500">React architectures.</p></div>
                   </div>
