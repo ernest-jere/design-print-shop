@@ -48,7 +48,7 @@ export default function AdminDashboard() {
         );
 
         // Send a secure POST request payload straight to your Make.com Webhook URL
-        await fetch("https://make.com", {
+        await fetch("https://hook.eu1.make.com/jmuva75v1ohrx5d6fvt57mp3c1au5acc", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
