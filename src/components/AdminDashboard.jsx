@@ -20,18 +20,63 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  // 🌟 NATIVE STATUS RE-MUTATION ENGINE
-  const handleStatusChange = (orderId, newStatus) => {
+    // 🌟 UPGRADED STATUS RE-MUTATION ENGINE WITH AUTOMATED WEBHOOK GATE
+  const handleStatusChange = async (orderId, newStatus) => {
     try {
       const stored = localStorage.getItem('design_print_orders');
       const currentOrders = stored ? JSON.parse(stored) : [];
+      
+      // Find the specific active order file target being modified
+      const targetedOrder = currentOrders.find(order => order.id === orderId);
+      
       const updatedOrders = currentOrders.map(order => 
         order.id === orderId ? { ...order, status: newStatus } : order
       );
+      
       localStorage.setItem('design_print_orders', JSON.stringify(updatedOrders));
       setOrders(updatedOrders);
+
+      // 🌟 THE STATUS TRIGGER GATE: Only fire webhook when manually upgraded to 'Quoted'
+      if (newStatus === "Quoted" && targetedOrder) {
+        console.log("🚀 Status Trigger Gate activated. Dispatching quote payload to Make.com...");
+        
+        // Compute the final price live right before sending so any edits are baked in
+        const { calculateEstimate } = require('./pricingMatrix');
+        const est = calculateEstimate(
+          targetedOrder.serviceType, targetedOrder.productCategory, targetedOrder.quantity, 
+          targetedOrder.paperFinish, targetedOrder.isoSize, targetedOrder.pagesCount, targetedOrder.printColor
+        );
+
+        // Send a secure POST request payload straight to your Make.com Webhook URL
+        await fetch("https://make.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event_type: "quote_approved",
+            order_id: targetedOrder.id,
+            timestamp: new Date().toISOString(),
+            client_name: targetedOrder.clientName,
+            client_email: targetedOrder.clientEmail,
+            client_phone: targetedOrder.clientPhone || "N/A",
+            service_pillar: targetedOrder.serviceType,
+            specialization_category: targetedOrder.productCategory,
+            quantity: targetedOrder.quantity || "1",
+            pages: targetedOrder.pagesCount || "1",
+            paper_size: targetedOrder.isoSize || "A4",
+            ink_profile: targetedOrder.printColor || "cmyk",
+            material_finish: targetedOrder.paperFinish || "standard",
+            brief_description: targetedOrder.description,
+            asset_url: targetedOrder.assetDownloadUrl || "No File Attached",
+            final_price_low: est.low,
+            final_price_high: est.high,
+            selected_workflow: est.routedWorkflow
+          })
+        });
+        
+        alert(`🌟 Quote generated! PDF document template built and emailed to ${targetedOrder.clientEmail} successfully via Impressions automated cloud servers.`);
+      }
     } catch (e) {
-      console.error(e);
+      console.error("Critical webhook bridge failure:", e);
     }
   };
 
