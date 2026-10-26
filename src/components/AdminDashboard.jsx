@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter, Download, Trash2 } from 'lucide-react';
+import { Search, Briefcase, FileText, CheckCircle2, Clock, Mail, Phone, ListFilter, Download, Trash2, Edit3, Send, XCircle } from 'lucide-react';
 import { calculateEstimate } from './pricingMatrix';
-
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
@@ -20,34 +19,63 @@ export default function AdminDashboard() {
     }
   }, []);
 
-    // 🌟 UPGRADED STATUS RE-MUTATION ENGINE WITH AUTOMATED WEBHOOK GATE
+  // 🌟 INTERACTIVE CORE FIELD MANIPULATION ENGINE (For Real-time Price & Description Edits)
+  const handleLocalFieldChange = (orderId, field, value) => {
+    const updated = orders.map(order => {
+      if (order.id === orderId) {
+        return { ...order, [field]: value };
+      }
+      return order;
+    });
+    setOrders(updated);
+    localStorage.setItem('design_print_orders', JSON.stringify(updated));
+  };
+    // 🌟 INITIALIZE REVIEW: Loads calculated baseline estimates into fully editable text input fields
+  const handleInitiateReview = (orderId) => {
+    const updated = orders.map(order => {
+      if (order.id === orderId) {
+        const est = calculateEstimate(
+          order.serviceType, order.productCategory, order.quantity, 
+          order.paperFinish, order.isoSize, order.pagesCount, order.printColor
+        );
+        return {
+          ...order,
+          status: "Under Review",
+          overridePriceLow: order.overridePriceLow ?? est.low,
+          overridePriceHigh: order.overridePriceHigh ?? est.high,
+          routedWorkflow: est.routedWorkflow ?? "Standard Evaluation Process"
+        };
+      }
+      return order;
+    });
+    setOrders(updated);
+    localStorage.setItem('design_print_orders', JSON.stringify(updated));
+  };
+
+  // 🌟 UPGRADED STATUS RE-MUTATION ENGINE WITH AUTOMATED WEBHOOK GATE
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       const stored = localStorage.getItem('design_print_orders');
       const currentOrders = stored ? JSON.parse(stored) : [];
-      
-      // Find the specific active order file target being modified
       const targetedOrder = currentOrders.find(order => order.id === orderId);
       
       const updatedOrders = currentOrders.map(order => 
         order.id === orderId ? { ...order, status: newStatus } : order
       );
-      
       localStorage.setItem('design_print_orders', JSON.stringify(updatedOrders));
       setOrders(updatedOrders);
 
-      // 🌟 THE STATUS TRIGGER GATE: Only fire webhook when manually upgraded to 'Quoted'
       if (newStatus === "Quoted" && targetedOrder) {
-        console.log("🚀 Status Trigger Gate activated. Dispatching quote payload to Make.com...");
-        
-        // Compute the final price live right before sending so any edits are baked in
-        const { calculateEstimate } = require('./pricingMatrix');
-        const est = calculateEstimate(
+        const baselineEst = calculateEstimate(
           targetedOrder.serviceType, targetedOrder.productCategory, targetedOrder.quantity, 
           targetedOrder.paperFinish, targetedOrder.isoSize, targetedOrder.pagesCount, targetedOrder.printColor
         );
 
-        // Send a secure POST request payload straight to your Make.com Webhook URL
+        const finalLow = targetedOrder.overridePriceLow ?? baselineEst.low;
+        const finalHigh = targetedOrder.overridePriceHigh ?? baselineEst.high;
+        const finalWorkflow = targetedOrder.routedWorkflow ?? baselineEst.routedWorkflow;
+        const finalDescription = targetedOrder.description || "";
+
         await fetch("https://hook.eu1.make.com/3b36jxpauh4wuqy3yaiqnl1ukezphytl", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -65,22 +93,21 @@ export default function AdminDashboard() {
             paper_size: targetedOrder.isoSize || "A4",
             ink_profile: targetedOrder.printColor || "cmyk",
             material_finish: targetedOrder.paperFinish || "standard",
-            brief_description: targetedOrder.description,
+            brief_description: finalDescription, 
             asset_url: targetedOrder.assetDownloadUrl || "No File Attached",
-            final_price_low: est.low,
-            final_price_high: est.high,
-            selected_workflow: est.routedWorkflow
+            final_price_low: Number(finalLow),   
+            final_price_high: Number(finalHigh), 
+            selected_workflow: finalWorkflow
           })
         });
-        
         alert(`🌟 Quote generated! PDF document template built and emailed to ${targetedOrder.clientEmail} successfully via Impressions automated cloud servers.`);
       }
     } catch (e) {
       console.error("Critical webhook bridge failure:", e);
+      alert("❌ Critical System Error: Failed to dispatch data payload.");
     }
   };
-
-  const safeOrders = Array.isArray(orders) ? orders : [];
+    const safeOrders = Array.isArray(orders) ? orders : [];
 
   const filteredOrders = safeOrders.filter(order => {
     if (!order) return false;
@@ -92,30 +119,16 @@ export default function AdminDashboard() {
     return matchesStatus && matchesSearch;
   });
 
-    // 🌟 NATIVE CSV EXTRACTION SHEET PARSER
   const exportToCSV = () => {
     if (safeOrders.length === 0) {
       alert("No order logs available to export.");
       return;
     }
-
-    // 1. Define clean spreadsheet column headers
     const headers = [
-      "Order ID",
-      "Date Created",
-      "Client Name",
-      "Email Address",
-      "Phone Number",
-      "Service Pillar",
-      "Category Deliverable",
-      "Estimated Quantity",
-      "Material Finish",
-      "Project Requirements Brief",
-      "Cloudinary Asset Download URL",
-      "Pipeline Status"
+      "Order ID", "Date Created", "Client Name", "Email Address", "Phone Number",
+      "Service Pillar", "Category Deliverable", "Estimated Quantity", "Material Finish",
+      "Project Requirements Brief", "Cloudinary Asset Download URL", "Pipeline Status"
     ];
-
-    // 2. Map and clean order rows (escaping quotation marks to prevent breaking cells)
     const csvRows = safeOrders.map(order => {
       const cleanDesc = (order.description || "").replace(/"/g, '""');
       return [
@@ -133,24 +146,16 @@ export default function AdminDashboard() {
         `"${order.status || 'New / Unreviewed'}"`
       ].join(",");
     });
-
-    // 3. Combine headers and spreadsheet data matrices into a flat data string
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + [headers.join(","), ...csvRows].join("\n");
-
-    // 4. Trigger browser native file download execution
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...csvRows].join("\n");
     const encodedUri = encodeURI(csvContent);
     const downloadLink = document.createElement("a");
     downloadLink.setAttribute("href", encodedUri);
     downloadLink.setAttribute("download", `DesignPrint_Orders_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(downloadLink);
-    
-    downloadLink.click(); // Fires the download instantly
-    document.body.removeChild(downloadLink); // Clean up the DOM element
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   };
-
-
-  return (    
+    return (    
     <div className="w-full space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
         <div>
@@ -158,186 +163,115 @@ export default function AdminDashboard() {
           <p className="text-xs text-slate-500">Track incoming client parameters, design scopes, and prepress briefs locally.</p>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          {/* PLACE THIS DIRECTLY TO THE RIGHT OF YOUR SEARCH INPUT CONTAINER DIV */}
-          <Button 
-              onClick={exportToCSV}
-              variant="outline"
-              className="text-xs font-semibold rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 h-9 flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer"
-            >
-              <Download className="h-4 w-4 text-blue-600" />
-              Export to Excel (.CSV)
+          <Button onClick={exportToCSV} variant="outline" className="text-xs font-semibold rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 h-9 flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer">
+            <Download className="h-4 w-4 text-blue-600" /> Export to Excel (.CSV)
           </Button>  
-          {/* PLACE THIS DIRECTLY NEXT TO YOUR EXPORT TO EXCEL BUTTON */}
-          <Button 
-            onClick={() => {
-              const confirmClear = window.confirm("⚠️ WARNING: This will permanently delete ALL client briefs and order logs from this local administration workspace ledger. This action cannot be undone. Proceed?");
-              if (confirmClear) {
-                try {
-                  localStorage.removeItem('design_print_orders'); // Evicts the storage key parameter
-                  setOrders([]); // Instantly flushes active state arrays to show a clean slate
-                  alert("Workspace ledger cleared successfully! Ready for live client intakes.");
-                } catch (err) {
-                  console.error("Ledger flush failure:", err);
-                }
-              }
-            }}
-            variant="outline"
-            className="text-xs font-semibold rounded-xl border-rose-200 bg-white hover:bg-rose-50 text-rose-700 h-9 flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer"
-          >
-            <Trash2 className="h-4 w-4 text-rose-600" />
-            Clear Workspace Ledger
+          <Button onClick={() => {
+            if (window.confirm("⚠️ WARNING: This will permanently delete ALL client briefs and order logs. Proceed?")) {
+              localStorage.removeItem('design_print_orders');
+              setOrders([]);
+              alert("Workspace ledger cleared successfully!");
+            }
+          }} variant="outline" className="text-xs font-semibold rounded-xl border-red-200 bg-white hover:bg-red-50 text-red-600 h-9 flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer">
+            <Trash2 className="h-4 w-4" /> Clear Ledger
           </Button>
-
-          <div className="relative w-full sm:w-64">
-
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Search client or pipeline..." 
-              className="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl bg-white outline-none focus:border-blue-500 text-slate-900"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
         </div>
       </div>
 
-      {/* METRIC ANALYSIS CAROUSEL BANNER */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="bg-white border border-slate-200 shadow-sm">
-          <CardHeader className="py-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Requests</CardTitle>
-            <Briefcase className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent><p className="text-2xl font-black text-slate-900">{safeOrders.length}</p></CardContent>
-        </Card>
-        <Card className="bg-white border border-slate-200 shadow-sm">
-          <CardHeader className="py-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">Pending Review</CardTitle>
-            <Clock className="h-4 w-4 text-amber-500" />
-          </CardHeader>
-          <CardContent><p className="text-2xl font-black text-slate-900">{safeOrders.filter(o => o?.status === 'New / Unreviewed').length}</p></CardContent>
-        </Card>
-        <Card className="bg-white border border-slate-200 shadow-sm">
-          <CardHeader className="py-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">Locked / Active</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent><p className="text-2xl font-black text-slate-900">{safeOrders.filter(o => o?.status === 'In Production' || o?.status === 'Quoted').length}</p></CardContent>
-        </Card>
+      <div className="flex flex-col md:flex-row gap-3 items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div className="relative w-full md:max-w-md">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+          <input type="text" placeholder="Search by client name, email or deliverable category..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white transition-all text-slate-800 placeholder-slate-400" />
+        </div>
+        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+          <ListFilter className="h-4 w-4 text-slate-400 hidden sm:block shrink-0" />
+          {["All", "Pending", "Under Review", "Quoted"].map((status) => (
+            <button key={status} onClick={() => setFilterStatus(status)} className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all shrink-0 cursor-pointer ${filterStatus === status ? "bg-slate-900 border-slate-900 text-white shadow-sm" : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"}`}>{status}</button>
+          ))}
+        </div>
       </div>
-
-      {/* STATUS CONTROLLERS FILTER ROW */}
-      <div className="flex flex-wrap gap-1.5 items-center bg-white p-2 border border-slate-200 rounded-xl w-fit shadow-sm">
-        <ListFilter className="h-3.5 w-3.5 mx-2 text-slate-400" />
-        {["All", "New / Unreviewed", "Quoted", "In Production", "Completed"].map((status) => (
-          <Button 
-            key={status} 
-            variant={filterStatus === status ? "default" : "ghost"} 
-            className="text-[11px] h-7 px-3 rounded-lg"
-            onClick={() => setFilterStatus(status)}
-          >
-            {status}
-          </Button>
-        ))}
-      </div>
-
-      {/* LEAD MONITOR CARDS STACK */}
-      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+            <div className="space-y-4">
         {filteredOrders.length === 0 ? (
-          <div className="text-center py-12 border border-dashed rounded-xl bg-white text-slate-400 text-xs">
-            No active client briefs match your current filter parameters. Try sending a form test first!
+          <div className="text-center py-12 bg-white rounded-xl border border-slate-100 shadow-inner">
+            <Clock className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm font-medium text-slate-600">No active work orders match your sorting parameters.</p>
           </div>
         ) : (
           filteredOrders.map((order) => (
-            <div key={order.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all grid grid-cols-1 lg:grid-cols-12 gap-4 items-start text-left">
-              
-              
-              <div className="lg:col-span-3 space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
-                    {order.id}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-medium">
-                    {order.timestamp ? new Date(order.timestamp).toLocaleDateString('en-ZA') : ''}
-                  </span>
+            <Card key={order.id} className="bg-white border-slate-200 shadow-sm overflow-hidden transition-all hover:border-slate-300">
+              <div className="border-b border-slate-100 bg-slate-50/50 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-mono font-bold text-slate-400 bg-white border px-1.5 py-0.5 rounded shadow-sm">{order.id ? order.id.substring(0, 8).toUpperCase() : "LEAD"}</span>
+                    <h3 className="font-bold text-slate-900 text-base">{order.clientName}</h3>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                    <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5 text-slate-400" />{order.clientEmail}</span>
+                    {order.clientPhone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5 text-slate-400" />{order.clientPhone}</span>}
+                  </div>
                 </div>
-                <h3 className="font-bold text-slate-900 text-base">{order.clientName}</h3>
-                <div className="space-y-1 text-xs text-slate-500 pt-1">
-                  <p className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 shrink-0" /> {order.clientEmail}</p>
-                  {order.clientPhone && <p className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 shrink-0" /> {order.clientPhone}</p>}
-                </div>
+                <span className={`text-2xs font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full border shadow-sm ${order.status === "Quoted" ? "bg-emerald-50 border-emerald-200 text-emerald-700" : order.status === "Under Review" ? "bg-amber-50 border-amber-200 text-amber-700 animate-pulse" : "bg-blue-50 border-blue-200 text-blue-700"}`}>{order.status || "Pending"}</span>
               </div>
 
-              <div className="lg:col-span-3 bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2 lg:ml-auto w-full text-left">
-                <div className="pt-1.5 border-t border-slate-200/60">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Pipeline Status</label>
-                  <select 
-                    className="w-full text-xs p-1.5 border border-slate-200 rounded-lg bg-white font-medium outline-none text-slate-900"
-                    value={order.status || "New / Unreviewed"}
-                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                  >
-                    <option value="New / Unreviewed">New / Unreviewed</option>
-                    <option value="Quoted">Quoted & Sent</option>
-                    <option value="In Production">In Production</option>
-                    <option value="Completed">Completed</option>
-                  </select>
+              <CardContent className="p-4 space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-50/40 border border-slate-100 p-3 rounded-xl text-xs text-slate-700 shadow-2xs">
+                  <div><p className="text-slate-400 font-medium">Service Pillar</p><p className="font-bold text-slate-800 capitalize flex items-center gap-1"><Briefcase className="h-3 w-3 text-blue-500" />{order.serviceType}</p></div>
+                  <div><p className="text-slate-400 font-medium">Deliverable Class</p><p className="font-bold text-slate-800 truncate">{order.productCategory}</p></div>
+                  <div><p className="text-slate-400 font-medium">Quantity Volume</p><p className="font-bold text-slate-800">{order.quantity} units</p></div>
+                  <div><p className="text-slate-400 font-medium">Specifications Setup</p><p className="font-bold text-slate-800 uppercase tracking-tight">{order.isoSize || "A4"} • {order.printColor || "CMYK"} • {order.paperFinish || "Standard"}</p></div>
                 </div>
-              </div>
 
-              <div className="lg:col-span-3 space-y-2">
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
-                    {order.serviceType}
-                  </span>
-                  <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
-                    {order.productCategory}
-                  </span>
-                  {order.quantity && (
-                    <span className="text-[10px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md font-medium">
-                      Qty: {order.quantity}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 italic leading-relaxed">
-                  "{order.description}"
-                </p>
-                {order.assetDownloadUrl && (
-                  <a 
-                    href={order.assetDownloadUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 underline hover:text-blue-800"
-                  >
-                    <FileText className="h-3.5 w-3.5" /> View Cloudinary Asset Brief
-                  </a>
-                )}
-              </div>
-
-              <div className="lg:col-span-3 bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2 lg:ml-auto w-full text-left">
-                {(() => {
-                  const est = calculateEstimate(
-                    order.serviceType, order.productCategory, order.quantity, 
-                    order.paperFinish, order.isoSize, order.pagesCount, order.printColor
-                  );
-                  return (
+                {order.status === "Under Review" ? (
+                  <div className="bg-amber-50/40 border border-amber-200 rounded-xl p-4 space-y-4 shadow-3xs">
                     <div className="space-y-1">
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Internal ZAR Guide</label>
-                      <p className="text-sm font-extrabold text-slate-900 leading-none">
-                        R {est.low.toLocaleString()} - R {est.high.toLocaleString()}
-                      </p>
-                      <p className="text-[9px] text-emerald-700 font-medium leading-tight">
-                        Route: {est.routedWorkflow}
-                      </p>
+                      <label className="text-xs font-bold text-slate-700 block">Project Requirements Brief Description (Editable)</label>
+                      <textarea value={order.description || ""} onChange={(e) => handleLocalFieldChange(order.id, 'description', e.target.value)} className="w-full text-sm p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500 min-h-[90px] shadow-2xs text-slate-800" placeholder="Refine and articulate final delivery conditions..." />
                     </div>
-                  );
-                })()}
-              </div>
-              
-            </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 block">Target Lower Bounds Price Estimate (ZAR R)</label>
+                        <div className="relative"><span className="absolute left-3 top-2 text-sm font-semibold text-slate-400">R</span><input type="number" value={order.overridePriceLow ?? ""} onChange={(e) => handleLocalFieldChange(order.id, 'overridePriceLow', parseInt(e.target.value, 10) || 0)} className="w-full pl-7 pr-3 py-1.5 text-sm bg-white border border-slate-200 rounded-xl font-mono focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-2xs font-bold text-slate-800" /></div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 block">Target Upper Bounds Price Estimate (ZAR R)</label>
+                        <div className="relative"><span className="absolute left-3 top-2 text-sm font-semibold text-slate-400">R</span><input type="number" value={order.overridePriceHigh ?? ""} onChange={(e) => handleLocalFieldChange(order.id, 'overridePriceHigh', parseInt(e.target.value, 10) || 0)} className="w-full pl-7 pr-3 py-1.5 text-sm bg-white border border-slate-200 rounded-xl font-mono focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-2xs font-bold text-slate-800" /></div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2 border-t border-amber-100 text-2xs text-slate-500">
+                      <p className="italic">Estimated Process Flow: <span className="font-bold text-amber-800">{order.routedWorkflow}</span></p>
+                      <div className="flex gap-2 w-full sm:w-auto justify-end">
+                        <Button onClick={() => handleStatusChange(order.id, "Pending")} variant="outline" className="text-xs rounded-xl h-8 border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-medium px-3 flex items-center gap-1 shadow-3xs cursor-pointer"><XCircle className="h-3.5 w-3.5 text-slate-400" /> Cancel Review</Button>
+                        <Button onClick={() => handleStatusChange(order.id, "Quoted")} className="text-xs font-bold rounded-xl h-8 bg-emerald-600 hover:bg-emerald-700 text-white px-4 flex items-center gap-1 shadow-sm cursor-pointer"><Send className="h-3.5 w-3.5" /> Approve & Send Quote</Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <p className="text-2xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><FileText className="h-3 w-3 text-slate-400" />Project Ingest Brief Description</p>
+                      <p className="text-sm text-slate-700 bg-slate-50/30 border border-slate-100 p-3 rounded-xl italic">"{order.description || "No specific design specifications provided."}"</p>
+                    </div>
+                    {order.assetDownloadUrl && order.assetDownloadUrl !== "No File Attached" && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <a href={order.assetDownloadUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200/60 px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-3xs transition-all w-fit cursor-pointer"><Download className="h-3.5 w-3.5" /> Review Uploaded Customer Artwork</a>
+                      </div>
+                    )}
+                    {order.status !== "Quoted" && (
+                      <div className="flex justify-end pt-2 border-t border-slate-100">
+                        <Button onClick={() => handleInitiateReview(order.id)} className="text-xs font-bold rounded-xl h-8.5 bg-blue-600 hover:bg-blue-700 text-white px-4 flex items-center gap-1 shadow-sm transition-all cursor-pointer"><Edit3 className="h-3.5 w-3.5" /> Review Details & Prices</Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           ))
         )}
       </div>
     </div>
   );
 }
+
+
+
+
