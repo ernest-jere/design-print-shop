@@ -76,20 +76,23 @@ export default function AdminDashboard() {
         const finalWorkflow = targetedOrder.routedWorkflow ?? baselineEst.routedWorkflow;
         const finalDescription = targetedOrder.description || "";
 
-        await fetch("https://hook.eu1.make.com/3b36jxpauh4wuqy3yaiqnl1ukezphytl", {
+        await fetch("https://make.com", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             event_type: "quote_approved",
             order_id: targetedOrder.id,
             timestamp: new Date().toISOString(),
-            client_name: targetedOrder.clientName,
-            client_email: targetedOrder.clientEmail,
-            client_phone: targetedOrder.clientPhone || "N/A",
+            client_name: targetedOrder.clientName || targetedOrder.client_name || "Client Name Missing",
+            
+            // 🌟 CRITICAL FIX: Direct fallback support for both snake_case and camelCase parameters
+            client_email: targetedOrder.clientEmail || targetedOrder.client_email || "", 
+            
+            client_phone: targetedOrder.clientPhone || targetedOrder.client_phone || "N/A",
             service_pillar: targetedOrder.serviceType,
             specialization_category: targetedOrder.productCategory,
-            quantity: targetedOrder.quantity || "1",
-            pages: targetedOrder.pagesCount || "1",
+            quantity: String(targetedOrder.quantity || "1"),
+            pages: String(targetedOrder.pagesCount || "1"),
             paper_size: targetedOrder.isoSize || "A4",
             ink_profile: targetedOrder.printColor || "cmyk",
             material_finish: targetedOrder.paperFinish || "standard",
@@ -100,6 +103,7 @@ export default function AdminDashboard() {
             selected_workflow: finalWorkflow
           })
         });
+
         alert(`🌟 Quote generated! PDF document template built and emailed to ${targetedOrder.clientEmail} successfully via Impressions automated cloud servers.`);
       }
     } catch (e) {
