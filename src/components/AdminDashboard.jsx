@@ -76,7 +76,7 @@ export default function AdminDashboard() {
         const finalWorkflow = targetedOrder.routedWorkflow ?? baselineEst.routedWorkflow;
         const finalDescription = targetedOrder.description || "";
 
-        await fetch("https://make.com", {
+        await fetch("https://hook.eu1.make.com/3b36jxpauh4wuqy3yaiqnl1ukezphytl", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
