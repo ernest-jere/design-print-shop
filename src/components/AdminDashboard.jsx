@@ -123,42 +123,92 @@ export default function AdminDashboard() {
     return matchesStatus && matchesSearch;
   });
 
+    // 🌟 UPGRADED CSV EXTRACTION SHEET PARSER WITH ADVANCED TECH SPECS
   const exportToCSV = () => {
     if (safeOrders.length === 0) {
       alert("No order logs available to export.");
       return;
     }
+
+    // Integrated dedicated columns for ISO Size and Ink Profiles
     const headers = [
-      "Order ID", "Date Created", "Client Name", "Email Address", "Phone Number",
-      "Service Pillar", "Category Deliverable", "Estimated Quantity", "Material Finish",
-      "Project Requirements Brief", "Cloudinary Asset Download URL", "Pipeline Status"
+      "Order ID", 
+      "Date Created", 
+      "Client Name", 
+      "Email Address", 
+      "Phone Number",
+      "Service Pillar", 
+      "Category Deliverable", 
+      "Estimated Quantity", 
+      "ISO Layout Size",
+      "Ink Profile Map",
+      "Material Finish",
+      "Project Requirements Brief", 
+      "Cloudinary Asset Download URL", 
+      "Pipeline Status",
+      "Price Low Bound (ZAR)",
+      "Price High Bound (ZAR)",
+      "Pricing Adjustment Type"
     ];
-    const csvRows = safeOrders.map(order => {
-      const cleanDesc = (order.description || "").replace(/"/g, '""');
-      return [
-        `"${order.id || ''}"`,
-        `"${order.timestamp ? new Date(order.timestamp).toLocaleDateString('en-ZA') : ''}"`,
-        `"${(order.clientName || '').replace(/"/g, '""')}"`,
-        `"${order.clientEmail || ''}"`,
-        `"${order.clientPhone || ''}"`,
-        `"${order.serviceType || ''}"`,
-        `"${order.productCategory || ''}"`,
-        `"${order.quantity || ''}"`,
-        `"${order.paperFinish || ''}"`,
-        `"${cleanDesc}"`,
-        `"${order.assetDownloadUrl || ''}"`,
-        `"${order.status || 'New / Unreviewed'}"`
-      ].join(",");
-    });
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...csvRows].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const downloadLink = document.createElement("a");
-    downloadLink.setAttribute("href", encodedUri);
-    downloadLink.setAttribute("download", `DesignPrint_Orders_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-  };
+        const csvRows = safeOrders.map(order => {
+        const cleanDesc = (order.description || "").replace(/"/g, '""');
+        
+        // Calculate system baseline on-the-fly as a fallback if no override values exist in memory
+        const baselineEst = calculateEstimate(
+          order.serviceType, 
+          order.productCategory, 
+          order.quantity, 
+          order.paperFinish, 
+          order.isoSize, 
+          order.pagesCount, 
+          order.printColor
+        );
+
+        // Prioritise live manual dashboard inputs, falling back to formula baselines
+        const finalLow = order.overridePriceLow ?? baselineEst.low;
+        const finalHigh = order.overridePriceHigh ?? baselineEst.high;
+        
+        // Dynamically label row to indicate whether it is an administrative override
+        const pricingType = (order.overridePriceLow !== undefined || order.overridePriceHigh !== undefined) 
+          ? "Custom Admin Override" 
+          : "Automated System Calculation";
+
+        // Clear parsing variables for the printing configurations
+        const cleanSize = (order.isoSize || "A4").toUpperCase();
+        const cleanInk = (order.printColor || "cmyk").toUpperCase();
+
+        return [
+          `"${order.id || ''}"`,
+          `"${order.timestamp ? new Date(order.timestamp).toLocaleDateString('en-ZA') : ''}"`,
+          `"${(order.clientName || '').replace(/"/g, '""')}"`,
+          `"${order.clientEmail || order.client_email || ''}"`,
+          `"${order.clientPhone || order.client_phone || ''}"`,
+          `"${order.serviceType || ''}"`,
+          `"${order.productCategory || ''}"`,
+          `"${order.quantity || ''}"`,
+          `"${cleanSize}"`,
+          `"${cleanInk}"`,
+          `"${order.paperFinish || ''}"`,
+          `"${cleanDesc}"`,
+          `"${order.assetDownloadUrl || ''}"`,
+          `"${order.status || 'New / Unreviewed'}"`,
+          `"R ${finalLow}"`,
+          `"R ${finalHigh}"`,
+          `"${pricingType}"`
+        ].join(",");
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...csvRows].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const downloadLink = document.createElement("a");
+      downloadLink.setAttribute("href", encodedUri);
+      downloadLink.setAttribute("download", `DesignPrint_Orders_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(downloadLink);
+      
+      downloadLink.click(); // Fires the download instantly
+      document.body.removeChild(downloadLink); // Clean up the DOM element
+    };
+
     return (    
     <div className="w-full space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
