@@ -123,14 +123,14 @@ export default function AdminDashboard() {
     return matchesStatus && matchesSearch;
   });
 
-    // 🌟 UPGRADED CSV EXTRACTION SHEET PARSER WITH ADVANCED TECH SPECS
+    // 🌟 UPGRADED CSV EXTRACTION ENGINE WITH ADMINISTRATIVE BYPASS AND ADVANCED TECH SPECS
   const exportToCSV = () => {
     if (safeOrders.length === 0) {
       alert("No order logs available to export.");
       return;
     }
 
-    // Integrated dedicated columns for ISO Size and Ink Profiles
+    // Integrated technical printing metrics columns alongside bypass identifiers
     const headers = [
       "Order ID", 
       "Date Created", 
@@ -151,63 +151,73 @@ export default function AdminDashboard() {
       "Pricing Adjustment Type"
     ];
         const csvRows = safeOrders.map(order => {
-        const cleanDesc = (order.description || "").replace(/"/g, '""');
-        
-        // Calculate system baseline on-the-fly as a fallback if no override values exist in memory
-        const baselineEst = calculateEstimate(
-          order.serviceType, 
-          order.productCategory, 
-          order.quantity, 
-          order.paperFinish, 
-          order.isoSize, 
-          order.pagesCount, 
-          order.printColor
-        );
-
-        // Prioritise live manual dashboard inputs, falling back to formula baselines
-        const finalLow = order.overridePriceLow ?? baselineEst.low;
-        const finalHigh = order.overridePriceHigh ?? baselineEst.high;
-        
-        // Dynamically label row to indicate whether it is an administrative override
-        const pricingType = (order.overridePriceLow !== undefined || order.overridePriceHigh !== undefined) 
-          ? "Custom Admin Override" 
-          : "Automated System Calculation";
-
-        // Clear parsing variables for the printing configurations
-        const cleanSize = (order.isoSize || "A4").toUpperCase();
-        const cleanInk = (order.printColor || "cmyk").toUpperCase();
-
-        return [
-          `"${order.id || ''}"`,
-          `"${order.timestamp ? new Date(order.timestamp).toLocaleDateString('en-ZA') : ''}"`,
-          `"${(order.clientName || '').replace(/"/g, '""')}"`,
-          `"${order.clientEmail || order.client_email || ''}"`,
-          `"${order.clientPhone || order.client_phone || ''}"`,
-          `"${order.serviceType || ''}"`,
-          `"${order.productCategory || ''}"`,
-          `"${order.quantity || ''}"`,
-          `"${cleanSize}"`,
-          `"${cleanInk}"`,
-          `"${order.paperFinish || ''}"`,
-          `"${cleanDesc}"`,
-          `"${order.assetDownloadUrl || ''}"`,
-          `"${order.status || 'New / Unreviewed'}"`,
-          `"R ${finalLow}"`,
-          `"R ${finalHigh}"`,
-          `"${pricingType}"`
-        ].join(",");
-      });
-
-      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...csvRows].join("\n");
-      const encodedUri = encodeURI(csvContent);
-      const downloadLink = document.createElement("a");
-      downloadLink.setAttribute("href", encodedUri);
-      downloadLink.setAttribute("download", `DesignPrint_Orders_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(downloadLink);
+      const cleanDesc = (order.description || "").replace(/"/g, '""');
       
-      downloadLink.click(); // Fires the download instantly
-      document.body.removeChild(downloadLink); // Clean up the DOM element
-    };
+      // Compute system baseline values on-the-fly to evaluate baseline structures
+      const baselineEst = calculateEstimate(
+        order.serviceType, 
+        order.productCategory, 
+        order.quantity, 
+        order.paperFinish, 
+        order.isoSize, 
+        order.pagesCount, 
+        order.printColor
+      );
+
+      // Prioritise manual user dashboard inputs, falling back to formula baselines
+      const finalLow = order.overridePriceLow ?? baselineEst.low;
+      const finalHigh = order.overridePriceHigh ?? baselineEst.high;
+      
+      // Determine if the order is processing under a zero-value parameter bypass gate
+      const parsedQty = parseInt(String(order.quantity || "1").replace(/[^0-9]/g, ''), 10);
+      const parsedPages = parseInt(String(order.pagesCount || "1").replace(/[^0-9]/g, ''), 10);
+      const isBypassActive = parsedQty === 0 || parsedPages === 0;
+
+      // Assign the pricing type tracker tag for clarity in the sheet data cells
+      let pricingType = "Automated System Calculation";
+      if (order.overridePriceLow !== undefined || order.overridePriceHigh !== undefined) {
+        pricingType = "Custom Admin Override";
+      } else if (isBypassActive) {
+        pricingType = "Admin Parameter Bypass Active";
+      }
+
+      // Format text variables for printing configurations
+      const cleanSize = (order.isoSize || "A4").toUpperCase();
+      let cleanInk = (order.printColor || "cmyk").toUpperCase();
+      if (cleanInk === "SUBLIMATION") cleanInk = "DYE SUBLIMATION";
+
+      return [
+        `"${order.id || ''}"`,
+        `"${order.timestamp ? new Date(order.timestamp).toLocaleDateString('en-ZA') : ''}"`,
+        `"${(order.clientName || '').replace(/"/g, '""')}"`,
+        `"${order.clientEmail || order.client_email || ''}"`,
+        `"${order.clientPhone || order.client_phone || ''}"`,
+        `"${order.serviceType || ''}"`,
+        `"${order.productCategory || ''}"`,
+        `"${order.quantity ?? '0'}"`,
+        `"${cleanSize}"`,
+        `"${cleanInk}"`,
+        `"${(order.paperFinish || 'standard').toUpperCase()}"`,
+        `"${cleanDesc}"`,
+        `"${order.assetDownloadUrl || ''}"`,
+        `"${order.status || 'New / Unreviewed'}"`,
+        `"R ${finalLow}"`,
+        `"R ${finalHigh}"`,
+        `"${pricingType}"`
+      ].join(",");
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...csvRows].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const downloadLink = document.createElement("a");
+    downloadLink.setAttribute("href", encodedUri);
+    downloadLink.setAttribute("download", `DesignPrint_Orders_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(downloadLink);
+    
+    downloadLink.click(); // Fires the download instantly
+    document.body.removeChild(downloadLink); // Clean up the DOM element
+  };
+
 
     return (    
     <div className="w-full space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left">
@@ -244,7 +254,7 @@ export default function AdminDashboard() {
           ))}
         </div>
       </div>
-            <div className="space-y-4">
+      <div className="space-y-4">
         {filteredOrders.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl border border-slate-100 shadow-inner">
             <Clock className="h-8 w-8 text-slate-300 mx-auto mb-2" />
