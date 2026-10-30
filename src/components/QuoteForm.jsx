@@ -41,15 +41,23 @@ export default function QuoteForm() {
   };
 
    // 🌟 DYNAMIC CATEGORIES: Mapped with bulletproof fallbacks
+    // 🌟 REBALANCED CATEGORIES: Explicitly separated Toner sheets from Wide-Format Inkjet runs
   const getDynamicCategories = () => {
     switch (formData.serviceType) {
       case 'design': return ['Graphic Design', 'UX/UI Design'];
-      case 'print': return ['Digital Printing', 'Offset Manufacturing', 'Industrial Screen Printing', 'Heat Press Branding Process'];
+      case 'print': return [
+        'Digital Toner Press (Short-Run Sheets)', 
+        'Wide-Format Digital Inkjet Production', 
+        'Offset Manufacturing', 
+        'Industrial Screen Printing', 
+        'Heat Press Branding Process'
+      ];
       case 'web': return ['UX Layout Architecture', 'Frontend Application Dev'];
       case 'consulting': return ['Prepress Preflight Audit', 'Color Ingest Calibration'];
       default: return [];
     }
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -105,6 +113,13 @@ export default function QuoteForm() {
   };
    return (
     <div className="w-full max-w-lg mx-auto p-4 relative min-h-[520px]">
+      {/* 🌟 ACCESSIBILITY CALLOUT BANNER FOR NON-TECHNICAL USERS */}
+      <div className="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-start gap-2.5 shadow-2xs">
+        <div className="p-1 bg-blue-600 text-white rounded-lg text-xs font-bold uppercase tracking-wider px-1.5 shrink-0">HELP</div>
+        <p className="text-xs text-blue-800 leading-normal font-medium">
+          Not sure which print or file parameters to select? Don't worry! Enter your best guess, or if you need immediate assistance, call or WhatsApp our studio helpdesk directly at <a href="tel:+27632985713" className="font-bold underline hover:text-blue-900">+27 63 298 5713</a>. We will manually refine your quote specifications during our preflight audit.
+        </p>
+      </div>
       <AnimatePresence mode="wait" custom={direction}>
         <motion.div key={step} custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.15 }}>
           
@@ -158,12 +173,24 @@ export default function QuoteForm() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-700 block">Quantity (Enter '0' to Bypass)</label>
-                        <input type="number" min="0" value={formData.quantity} onChange={(e) => handleFieldUpdate('quantity', e.target.value)} className="w-full rounded-xl border border-slate-200 p-2 text-sm text-slate-800" />
+                        <label className="text-xs font-bold text-slate-700 block">Quantity / Volume</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          value={formData.quantity} 
+                          onChange={(e) => handleFieldUpdate('quantity', Math.max(1, parseInt(e.target.value, 10) || 1))} 
+                          className="w-full rounded-xl border border-slate-200 p-2 text-sm text-slate-800" 
+                        />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-700 block">Total Pages ('0' to Bypass)</label>
-                        <input type="number" min="0" value={formData.pagesCount} onChange={(e) => handleFieldUpdate('pagesCount', e.target.value)} className="w-full rounded-xl border border-slate-200 p-2 text-sm text-slate-800" />
+                        <label className="text-xs font-bold text-slate-700 block">Total Pages</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          value={formData.pagesCount} 
+                          onChange={(e) => handleFieldUpdate('pagesCount', Math.max(1, parseInt(e.target.value, 10) || 1))} 
+                          className="w-full rounded-xl border border-slate-200 p-2 text-sm text-slate-800" 
+                        />
                       </div>
                     </div>
 
@@ -193,13 +220,21 @@ export default function QuoteForm() {
 
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-700 block">Substrate Base Material / Finish</label>
-                      <select value={formData.paperFinish} onChange={(e) => handleFieldUpdate('paperFinish', e.target.value)} className="w-full rounded-xl border border-slate-200 p-2.5 text-sm bg-white text-slate-800">
+                      <select 
+                        value={formData.paperFinish} 
+                        onChange={(e) => handleFieldUpdate('paperFinish', e.target.value)} 
+                        className="w-full rounded-xl border border-slate-200 p-2.5 text-sm bg-white text-slate-800"
+                      >
                         <option value="standard">Standard Matte Paper Base</option>
                         <option value="gloss">Gloss Coating Varnish</option>
                         <option value="uv">UV High-Gloss Protection Shield</option>
                         <option value="correx">Correx Board Rigid Core Flute</option>
                         <option value="vinyl">Premium Flexible Signage Vinyl</option>
                         <option value="pack_board">Industrial Packaging Box Board</option>
+                        {/* 🌟 NEW BRANDING SUBSTRATES */}
+                        <option value="heat_transfer">Heat Transfer Paper (Inkjet Media)</option>
+                        <option value="sub_paper">Sublimation Carrier Paper Sheets</option>
+                        <option value="dtf_film">Direct to Film (DTF Premium PET Film)</option>
                       </select>
                     </div>
                   </div>

@@ -124,13 +124,14 @@ export default function AdminDashboard() {
   });
 
     // 🌟 UPGRADED CSV EXTRACTION ENGINE WITH ADMINISTRATIVE BYPASS AND ADVANCED TECH SPECS
+    // 🌟 UPGRADED CSV EXTRACTION ENGINE (CLEANED OF BYPASS LOGIC)
   const exportToCSV = () => {
     if (safeOrders.length === 0) {
       alert("No order logs available to export.");
       return;
     }
 
-    // Integrated technical printing metrics columns alongside bypass identifiers
+    // Standardized reporting headers tracking advanced print engineering specifications
     const headers = [
       "Order ID", 
       "Date Created", 
@@ -153,7 +154,7 @@ export default function AdminDashboard() {
         const csvRows = safeOrders.map(order => {
       const cleanDesc = (order.description || "").replace(/"/g, '""');
       
-      // Compute system baseline values on-the-fly to evaluate baseline structures
+      // Compute standard baseline values on-the-fly via the rebalanced calculator logic
       const baselineEst = calculateEstimate(
         order.serviceType, 
         order.productCategory, 
@@ -164,24 +165,16 @@ export default function AdminDashboard() {
         order.printColor
       );
 
-      // Prioritise manual user dashboard inputs, falling back to formula baselines
+      // Prioritise live manual dashboard overrides, falling back to formula baselines
       const finalLow = order.overridePriceLow ?? baselineEst.low;
       const finalHigh = order.overridePriceHigh ?? baselineEst.high;
       
-      // Determine if the order is processing under a zero-value parameter bypass gate
-      const parsedQty = parseInt(String(order.quantity || "1").replace(/[^0-9]/g, ''), 10);
-      const parsedPages = parseInt(String(order.pagesCount || "1").replace(/[^0-9]/g, ''), 10);
-      const isBypassActive = parsedQty === 0 || parsedPages === 0;
+      // Determine if a record uses system calculations or custom manual values
+      const pricingType = (order.overridePriceLow !== undefined || order.overridePriceHigh !== undefined) 
+        ? "Custom Admin Override" 
+        : "Automated System Calculation";
 
-      // Assign the pricing type tracker tag for clarity in the sheet data cells
-      let pricingType = "Automated System Calculation";
-      if (order.overridePriceLow !== undefined || order.overridePriceHigh !== undefined) {
-        pricingType = "Custom Admin Override";
-      } else if (isBypassActive) {
-        pricingType = "Admin Parameter Bypass Active";
-      }
-
-      // Format text variables for printing configurations
+      // Sanitize printing text options for spreadsheets cells consistency
       const cleanSize = (order.isoSize || "A4").toUpperCase();
       let cleanInk = (order.printColor || "cmyk").toUpperCase();
       if (cleanInk === "SUBLIMATION") cleanInk = "DYE SUBLIMATION";
@@ -194,7 +187,7 @@ export default function AdminDashboard() {
         `"${order.clientPhone || order.client_phone || ''}"`,
         `"${order.serviceType || ''}"`,
         `"${order.productCategory || ''}"`,
-        `"${order.quantity ?? '0'}"`,
+        `"${order.quantity || '1'}"`,
         `"${cleanSize}"`,
         `"${cleanInk}"`,
         `"${(order.paperFinish || 'standard').toUpperCase()}"`,
@@ -217,6 +210,7 @@ export default function AdminDashboard() {
     downloadLink.click(); // Fires the download instantly
     document.body.removeChild(downloadLink); // Clean up the DOM element
   };
+
 
 
     return (    
@@ -261,8 +255,8 @@ export default function AdminDashboard() {
             <p className="text-sm font-medium text-slate-600">No active work orders match your sorting parameters.</p>
           </div>
         ) : (
-          filteredOrders.map((order) => (
-            <Card key={order.id} className="bg-white border-slate-200 shadow-sm overflow-hidden transition-all hover:border-slate-300">
+          filteredOrders.map((order, idx) => (
+            <Card key={`dashboard-order-${order.id || idx}-${idx}`} className="bg-white border-slate-200 shadow-sm overflow-hidden transition-all hover:border-slate-300">
               <div className="border-b border-slate-100 bg-slate-50/50 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2 flex-wrap">
